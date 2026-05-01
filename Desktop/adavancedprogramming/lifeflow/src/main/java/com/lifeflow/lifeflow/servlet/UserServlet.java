@@ -48,19 +48,19 @@ public class UserServlet extends HttpServlet {
             throws ServletException, IOException {
         List<BloodStock> stockList = bloodService.getAllBloodStock();
         request.setAttribute("stockList", stockList);
-        request.getRequestDispatcher("/WEB-INF/views/userDashboard.jsp")
+        request.getRequestDispatcher("/userDashboard.jsp")
                 .forward(request, response);
     }
 
     private void showProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/profile.jsp")
+        request.getRequestDispatcher("/profile.jsp")
                 .forward(request, response);
     }
 
     private void showDonationHistory(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/donationHistory.jsp")
+        request.getRequestDispatcher("/donationHistory.jsp")
                 .forward(request, response);
     }
 }
