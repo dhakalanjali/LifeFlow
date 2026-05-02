@@ -72,8 +72,37 @@ public class RegisterServlet extends HttpServlet {
         }
 
         // Check password length
-        if(password.length() < 6) {
-            request.setAttribute("error", "Password must be at least 6 characters!");
+        // Check password length
+        if(password.length() < 8) {
+            request.setAttribute("error", "Password must be at least 8 characters!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+// Check uppercase
+        if(!password.matches(".*[A-Z].*")) {
+            request.setAttribute("error", "Password must contain at least one uppercase letter!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+// Check lowercase
+        if(!password.matches(".*[a-z].*")) {
+            request.setAttribute("error", "Password must contain at least one lowercase letter!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+// Check number
+        if(!password.matches(".*[0-9].*")) {
+            request.setAttribute("error", "Password must contain at least one number!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+// Check special character
+        if(!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{}|;':\",./<>?].*")) {
+            request.setAttribute("error", "Password must contain at least one special character (!@#$%^&*)!");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }

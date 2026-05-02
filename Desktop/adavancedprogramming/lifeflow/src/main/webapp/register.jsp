@@ -4,7 +4,6 @@
 <head>
     <title>LifeFlow - Register</title>
     <style>
-        /* RESET */
         * {
             margin: 0;
             padding: 0;
@@ -21,7 +20,6 @@
             padding: 30px 20px;
         }
 
-        /* REGISTER BOX */
         .register-container {
             background-color: white;
             padding: 40px;
@@ -31,7 +29,6 @@
             max-width: 500px;
         }
 
-        /* HEADER */
         .register-header {
             text-align: center;
             margin-bottom: 30px;
@@ -54,7 +51,6 @@
             margin-top: 4px;
         }
 
-        /* FORM GROUPS */
         .form-group {
             margin-bottom: 18px;
         }
@@ -85,7 +81,6 @@
             border-color: #cc0000;
         }
 
-        /* BUTTON */
         .btn-register {
             width: 100%;
             padding: 12px;
@@ -102,7 +97,6 @@
             background-color: #aa0000;
         }
 
-        /* MESSAGES */
         .error-message {
             background-color: #ffe0e0;
             color: #cc0000;
@@ -136,7 +130,6 @@
             font-weight: bold;
         }
 
-        /* TWO COLUMN ROW */
         .form-row {
             display: flex;
             gap: 15px;
@@ -146,7 +139,13 @@
             flex: 1;
         }
 
-        /* RESPONSIVE */
+        /* Password strength hint */
+        .password-hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
         @media (max-width: 480px) {
             .register-container {
                 padding: 25px;
@@ -162,7 +161,6 @@
 
 <div class="register-container">
 
-    <!-- HEADER -->
     <div class="register-header">
         <h1>🩸 LifeFlow</h1>
         <p>Blood Donation Management System</p>
@@ -181,7 +179,6 @@
     <div class="success-message"><%= success %></div>
     <% } %>
 
-    <!-- REGISTER FORM -->
     <form action="register" method="post">
 
         <!-- Full Name -->
@@ -209,7 +206,7 @@
                    required/>
         </div>
 
-        <!-- DOB and Gender in same row -->
+        <!-- DOB and Gender -->
         <div class="form-row">
             <div class="form-group">
                 <label>Date of Birth *</label>
@@ -252,14 +249,17 @@
             </select>
         </div>
 
-        <!-- Password and Confirm in same row -->
+        <!-- Password and Confirm -->
         <div class="form-row">
             <div class="form-group">
                 <label>Password *</label>
                 <input type="password" name="password"
-                       placeholder="Min 6 characters"
-                       minlength="6"
+                       placeholder="Min 8 chars, A-Z, 0-9, !@#$"
+                       minlength="8"
                        required/>
+                <p class="password-hint">
+                    Must have: uppercase, lowercase, number, special char (!@#$%^&*)
+                </p>
             </div>
 
             <div class="form-group">
@@ -280,16 +280,51 @@
 
 </div>
 
-<!-- JAVASCRIPT VALIDATION -->
 <script>
     document.querySelector('form').addEventListener('submit', function(e) {
 
-        // Check passwords match
         var password = document.querySelector('input[name="password"]').value;
         var confirmPassword = document.querySelector('input[name="confirmPassword"]').value;
+
+        // Check passwords match
         if(password !== confirmPassword) {
             e.preventDefault();
             alert('Passwords do not match!');
+            return;
+        }
+
+        // Check password length
+        if(password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters!');
+            return;
+        }
+
+        // Check uppercase
+        if(!/[A-Z]/.test(password)) {
+            e.preventDefault();
+            alert('Password must have at least one uppercase letter!');
+            return;
+        }
+
+        // Check lowercase
+        if(!/[a-z]/.test(password)) {
+            e.preventDefault();
+            alert('Password must have at least one lowercase letter!');
+            return;
+        }
+
+        // Check number
+        if(!/[0-9]/.test(password)) {
+            e.preventDefault();
+            alert('Password must have at least one number!');
+            return;
+        }
+
+        // Check special character
+        if(!/[!@#$%^&*]/.test(password)) {
+            e.preventDefault();
+            alert('Password must have at least one special character (!@#$%^&*)!');
             return;
         }
 
