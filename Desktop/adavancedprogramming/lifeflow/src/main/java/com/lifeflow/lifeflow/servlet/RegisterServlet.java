@@ -1,124 +1,176 @@
 package com.lifeflow.lifeflow.servlet;
 
-import com.lifeflow.lifeflow.dao.UserDAO;
-import com.lifeflow.lifeflow.model.User;
+import com.lifeflow.lifeflow.db.DBConnection;
+import com.lifeflow.lifeflow.util.PasswordUtil;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.sql.*;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
-    // Show register page
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/register.jsp").forward(request, response);
+        request.getRequestDispatcher("register.jsp").forward(request, response);
     }
 
-    // Handle register form submission
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Get form data
+        // 1. GET ALL FORM DATA
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+        String dateOfBirth = request.getParameter("dateOfBirth");
+        String gender = request.getParameter("gender");
+        String address = request.getParameter("address");
+        String bloodType = request.getParameter("bloodType");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
-        String phone = request.getParameter("phone");
-        String bloodType = request.getParameter("bloodType");
 
-        UserDAO userDAO = new UserDAO();
+        // 2. SERVER SIDE VALIDATION
 
-        // Validation checks
-        if (fullName == null || fullName.trim().isEmpty()) {
-            request.setAttribute("error", "Full name is required!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        // Check empty fields
+        if(fullName == null || fullName.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
+                phone == null || phone.trim().isEmpty() ||
+                dateOfBirth == null || dateOfBirth.trim().isEmpty() ||
+                gender == null || gender.trim().isEmpty() ||
+                address == null || address.trim().isEmpty() ||
+                bloodType == null || bloodType.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
+
+            request.setAttribute("error", "All fields are required!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (!fullName.matches("[a-zA-Z ]+")) {
-            request.setAttribute("error", "Full name must contain letters only!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        // Check name has no numbers
+        if(fullName.matches(".*\\d.*")) {
+            request.setAttribute("error", "Full name cannot contain numbers!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (email == null || email.trim().isEmpty()) {
-            request.setAttribute("error", "Email is required!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        // Check phone is 10 digits
+        if(!phone.matches("\\d{10}")) {
+            request.setAttribute("error", "Phone number must be exactly 10 digits!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
-            request.setAttribute("error", "Please enter a valid email!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-            return;
-        }
-
-        if (password == null || password.length() < 6) {
-            request.setAttribute("error", "Password must be at least 6 characters!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-            return;
-        }
-
-        if (!password.equals(confirmPassword)) {
+        // Check passwords match
+        if(!password.equals(confirmPassword)) {
             request.setAttribute("error", "Passwords do not match!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (phone == null || phone.trim().isEmpty()) {
-            request.setAttribute("error", "Phone number is required!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        // Check password length
+        // Check password length
+        if(password.length() < 8) {
+            request.setAttribute("error", "Password must be at least 8 characters!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (!phone.matches("[0-9]{10}")) {
-            request.setAttribute("error", "Phone must be 10 digits only!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+// Check uppercase
+        if(!password.matches(".*[A-Z].*")) {
+            request.setAttribute("error", "Password must contain at least one uppercase letter!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        if (bloodType == null || bloodType.trim().isEmpty()) {
-            request.setAttribute("error", "Please select your blood type!");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+// Check lowercase
+        if(!password.matches(".*[a-z].*")) {
+            request.setAttribute("error", "Password must contain at least one lowercase letter!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        // Check if email already exists
-        if (userDAO.emailExists(email)) {
-            request.setAttribute("error", "Email already registered! Please use another email.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+// Check number
+        if(!password.matches(".*[0-9].*")) {
+            request.setAttribute("error", "Password must contain at least one number!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        // Check if phone already exists
-        if (userDAO.phoneExists(phone)) {
-            request.setAttribute("error", "Phone number already registered! Please use another number.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+// Check special character
+        if(!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{}|;':\",./<>?].*")) {
+            request.setAttribute("error", "Password must contain at least one special character (!@#$%^&*)!");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        // Create user object
-        User user = new User();
-        user.setFullName(fullName);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setPhone(phone);
-        user.setBloodType(bloodType);
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
 
-        // Save to database
-        boolean success = userDAO.registerUser(user);
+            // 3. CHECK EMAIL EXISTS
+            String checkEmail = "SELECT * FROM users WHERE email = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkEmail);
+            checkStmt.setString(1, email);
+            ResultSet rs = checkStmt.executeQuery();
+            if(rs.next()) {
+                request.setAttribute("error", "Email already exists! Please use a different email.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
 
-        if (success) {
-            request.setAttribute("success", "Registration successful! Please wait for admin approval.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "Registration failed! Please try again.");
-            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            // CHECK PHONE EXISTS
+            String checkPhone = "SELECT * FROM users WHERE phone = ?";
+            PreparedStatement checkPhoneStmt = conn.prepareStatement(checkPhone);
+            checkPhoneStmt.setString(1, phone);
+            ResultSet rsPhone = checkPhoneStmt.executeQuery();
+            if(rsPhone.next()) {
+                request.setAttribute("error", "Phone number already exists! Please use a different number.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // 4. ENCRYPT PASSWORD ← FIXED HERE!
+            String encryptedPassword = PasswordUtil.encryptPassword(password);
+
+            // 5. SAVE TO DATABASE
+            String insertQuery = "INSERT INTO users " +
+                    "(full_name, email, phone, date_of_birth, gender, address, blood_type, password, role, is_approved) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'user', 'pending')";
+
+            PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
+            insertStmt.setString(1, fullName);
+            insertStmt.setString(2, email);
+            insertStmt.setString(3, phone);
+            insertStmt.setString(4, dateOfBirth);
+            insertStmt.setString(5, gender);
+            insertStmt.setString(6, address);
+            insertStmt.setString(7, bloodType);
+            insertStmt.setString(8, encryptedPassword);
+
+            int result = insertStmt.executeUpdate();
+
+            if(result > 0) {
+                // 6. SUCCESS
+                request.setAttribute("success",
+                        "Registration successful! Please wait for admin approval before logging in.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Registration failed! Please try again.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Something went wrong! Please try again.");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+        } finally {
+            if(conn != null) {
+                try { conn.close(); } catch(SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 }

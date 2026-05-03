@@ -68,6 +68,28 @@
             border-color: #C0392B;
         }
 
+        /* REMEMBER ME */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #C0392B;
+        }
+
+        .remember-me label {
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -116,6 +138,14 @@
             margin-bottom: 25px;
             font-size: 14px;
         }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .login-container {
+                width: 90%;
+                padding: 25px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -137,14 +167,27 @@
 
     <form action="login" method="post">
 
+        <!-- Email - pre filled from cookie -->
         <div class="form-group">
             <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email" required/>
+            <input type="email" name="email"
+                   placeholder="Enter your email"
+                   value="${savedEmail}"
+                   required/>
         </div>
 
+        <!-- Password -->
         <div class="form-group">
             <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password" required/>
+            <input type="password" name="password"
+                   placeholder="Enter your password"
+                   required/>
+        </div>
+
+        <!-- REMEMBER ME CHECKBOX -->
+        <div class="remember-me">
+            <input type="checkbox" name="rememberMe" id="rememberMe"/>
+            <label for="rememberMe">Remember me for 7 days</label>
         </div>
 
         <button type="submit" class="btn-login">Login</button>
