@@ -37,17 +37,34 @@ public class UserService {
         catch (Exception e) { return false; }
     }
 
+    // ✅ Delete user
+    public boolean deleteUser(int userId) {
+        try { return userDAO.deleteUser(userId); }
+        catch (Exception e) { return false; }
+    }
+
+    // ✅ Update user
+    public boolean updateUser(int userId, String fullName, String email, String phone, String bloodType, String role) {
+        try {
+            User u = userDAO.getUserById(userId);
+            if (u == null) return false;
+            u.setFullName(fullName);
+            u.setEmail(email);
+            u.setPhone(phone);
+            u.setBloodType(bloodType);
+            u.setRole(role);
+            return userDAO.updateUser(u);
+        }
+        catch (Exception e) { return false; }
+    }
+
     // Get dashboard stats
     public int[] getDashboardStats() {
         int[] s = new int[4];
-        try { s[0] = userDAO.getTotalUserCount(); }
-        catch (Exception e) {}
-        try { s[1] = userDAO.countUsersByStatus("pending"); }
-        catch (Exception e) {}
-        try { s[2] = userDAO.countUsersByStatus("approved"); }
-        catch (Exception e) {}
-        try { s[3] = donorDAO.getTotalDonorCount(); }
-        catch (Exception e) {}
+        try { s[0] = userDAO.getTotalUserCount(); } catch (Exception e) {}
+        try { s[1] = userDAO.countUsersByStatus("pending"); } catch (Exception e) {}
+        try { s[2] = userDAO.countUsersByStatus("approved"); } catch (Exception e) {}
+        try { s[3] = donorDAO.getTotalDonorCount(); } catch (Exception e) {}
         return s;
     }
 
