@@ -30,8 +30,6 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-
-        /* SIDEBAR */
         .sidebar { width: 240px; background: var(--red-dark); min-height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 10px; }
         .sidebar-logo .logo-icon { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
@@ -45,11 +43,7 @@
         .sidebar-footer { padding: 16px 10px; border-top: 1px solid rgba(255,255,255,0.15); }
         .sidebar-footer a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.6); text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
         .sidebar-footer a:hover { background: rgba(255,255,255,0.15); color: white; }
-
-        /* MAIN */
         .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-
-        /* TOPBAR */
         .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
         .topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
         .topbar-left span { font-size: 12px; color: var(--text-muted); }
@@ -57,11 +51,7 @@
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
-
-        /* CONTENT */
         .content { padding: 28px; flex: 1; }
-
-        /* STAT CARDS */
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
         .stat-card { background: var(--white); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; transition: transform 0.2s; border-top: 4px solid var(--red); text-decoration: none; color: var(--text); }
         .stat-card:hover { transform: translateY(-3px); }
@@ -72,11 +62,7 @@
         .stat-icon.blue { background: #eaf4fb; }
         .stat-info .num { font-size: 30px; font-weight: 800; color: var(--red); line-height: 1; }
         .stat-info .lbl { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
-
-        /* SECTION TITLE */
         .section-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-
-        /* ACTIONS */
         .actions-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
         .action-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
         .action-btn.primary { background: var(--red); color: white; box-shadow: 0 4px 12px rgba(192,57,43,0.3); }
@@ -87,8 +73,6 @@
         .action-btn.green:hover { background: #219150; transform: translateY(-2px); }
         .action-btn.blue { background: var(--blue); color: white; }
         .action-btn.blue:hover { background: #2471a3; transform: translateY(-2px); }
-
-        /* CHARTS - SMALLER SIZE */
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
         .chart-card { background: white; border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
         .chart-card h3 { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #fdecea; }
@@ -96,23 +80,15 @@
         .chart-full { background: white; border-radius: 14px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 28px; }
         .chart-full h3 { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #fdecea; }
         .chart-full .chart-wrap { position: relative; height: 160px; }
-
-        /* TWO COL */
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
-
-        /* BLOOD CARDS */
         .blood-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .bcard { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); border-bottom: 3px solid var(--red); transition: transform 0.2s; }
         .bcard:hover { transform: translateY(-3px); }
         .bcard .bg { font-size: 18px; font-weight: 800; color: var(--red); }
         .bcard .bc { font-size: 24px; font-weight: 800; color: var(--text); margin: 4px 0; }
         .bcard .bl { font-size: 10px; color: var(--text-muted); font-weight: 600; }
-
-        /* PANEL */
         .panel { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
         .panel-body { padding: 20px; }
-
-        /* TABLE */
         .table-wrap { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 28px; }
         .table-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fdecea; }
         .table-header h3 { font-size: 15px; font-weight: 800; color: var(--red-dark); }
@@ -121,14 +97,10 @@
         tbody td { padding: 13px 18px; font-size: 13px; border-bottom: 1px solid var(--border); font-weight: 600; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: #fdf8f8; }
-
-        /* BADGES */
         .badge { display: inline-block; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
         .badge.pending { background: #fef9e7; color: #d68910; }
         .badge.approved { background: #eafaf1; color: #1e8449; }
         .badge.rejected { background: #fdecea; color: #c0392b; }
-
-        /* TABLE BUTTONS */
         .tbl-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 6px; color: white; font-size: 11px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; cursor: pointer; border: none; }
         .tbl-btn:hover { opacity: 0.85; }
         .tbl-btn.approve { background: var(--green); }
@@ -136,12 +108,9 @@
         .tbl-btn.edit { background: var(--orange); }
         .tbl-btn.delete { background: #95a5a6; }
         .tbl-btn.view { background: var(--blue); }
-
-        /* MESSAGES */
         .msg-s { background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #28a745; font-size: 13px; font-weight: 600; }
         .msg-e { background: #f8d7da; color: #721c24; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #dc3545; font-size: 13px; font-weight: 600; }
         .empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
-
         @media(max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; }
             .main { margin-left: 0; }
@@ -175,8 +144,14 @@
         <a href="${pageContext.request.contextPath}/bloodRequest">
             <span class="icon">🔍</span> Search Blood
         </a>
-        <a href="${pageContext.request.contextPath}/reports">
+        <a href="${pageContext.request.contextPath}/reports.jsp">
             <span class="icon">📊</span> Reports
+        </a>
+        <a href="${pageContext.request.contextPath}/about.jsp">
+            <span class="icon">ℹ️</span> About
+        </a>
+        <a href="${pageContext.request.contextPath}/contact.jsp">
+            <span class="icon">📞</span> Contact
         </a>
     </nav>
     <div class="sidebar-footer">
@@ -213,7 +188,7 @@
         <div class="msg-e">❌ <%=em%></div>
         <% } %>
 
-        <!-- STAT CARDS - CLICKABLE -->
+        <!-- STAT CARDS -->
         <div class="stat-grid">
             <a href="${pageContext.request.contextPath}/admin/manageUsers" class="stat-card">
                 <div class="stat-icon red">👥</div>
@@ -242,7 +217,7 @@
             <a href="${pageContext.request.contextPath}/manageCamps.jsp" class="action-btn blue">⛺ Manage Camps</a>
         </div>
 
-        <!-- CHARTS - SMALLER -->
+        <!-- CHARTS -->
         <div class="section-title">📊 Analytics</div>
         <div class="charts-grid">
             <div class="chart-card">
@@ -331,8 +306,6 @@
                     <td>
                         <a href="<%=request.getContextPath()%>/admin/approve?userId=<%=u.getUserId()%>" class="tbl-btn approve">✅ Approve</a>
                         &nbsp;
-                        <a href="<%=request.getContextPath()%>/admin/editUser?userId=<%=u.getUserId()%>" class="tbl-btn edit">✏️ Edit</a>
-                        &nbsp;
                         <a href="<%=request.getContextPath()%>/admin/reject?userId=<%=u.getUserId()%>" class="tbl-btn reject" onclick="return confirm('Reject this user?')">❌ Reject</a>
                     </td>
                 </tr>
@@ -345,7 +318,7 @@
         <!-- ALL USERS -->
         <div class="section-title">👥 All Users</div>
         <%
-            java.util.List allUsers = (java.util.List) request.getAttribute("allUsers");
+            java.util.List allUsers = (java.util.List) request.getAttribute("users");
             if (allUsers == null || allUsers.isEmpty()) {
         %>
         <div class="panel" style="margin-bottom:28px;">
@@ -395,7 +368,6 @@
 
 <!-- CHARTS JS -->
 <script>
-    // DONUT CHART
     new Chart(document.getElementById('donutChart'), {
         type: 'doughnut',
         data: {
@@ -410,14 +382,11 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700', size: 11 }, padding: 10 } }
-            },
+            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700', size: 11 }, padding: 10 } } },
             cutout: '68%'
         }
     });
 
-    // BAR CHART
     new Chart(document.getElementById('bloodChart'), {
         type: 'bar',
         data: {
@@ -441,7 +410,6 @@
         }
     });
 
-    // LINE CHART
     new Chart(document.getElementById('lineChart'), {
         type: 'line',
         data: {

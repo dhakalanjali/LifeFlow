@@ -22,7 +22,6 @@ public class AdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
-        // Check if admin is logged in
         HttpSession session = req.getSession(false);
         User loggedUser = (session != null) ? (User) session.getAttribute("user") : null;
         if (loggedUser == null || !loggedUser.getRole().equals("admin")) {
@@ -63,7 +62,6 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    // ── DASHBOARD ──
     private void showDashboard(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         try {
@@ -73,7 +71,6 @@ public class AdminServlet extends HttpServlet {
             req.setAttribute("approvedUsers", s[2]);
             req.setAttribute("totalDonors",   s[3]);
 
-            // Blood group counts
             req.setAttribute("countAPos",  userService.getDonorsByBloodGroup("A+").size());
             req.setAttribute("countBPos",  userService.getDonorsByBloodGroup("B+").size());
             req.setAttribute("countOPos",  userService.getDonorsByBloodGroup("O+").size());
@@ -83,11 +80,8 @@ public class AdminServlet extends HttpServlet {
             req.setAttribute("countONeg",  userService.getDonorsByBloodGroup("O-").size());
             req.setAttribute("countABNeg", userService.getDonorsByBloodGroup("AB-").size());
 
-            // Pending list for approval table
             req.setAttribute("pendingList", userService.getPendingUsers());
-
-            // ✅ NEW: All users for the All Users table
-            req.setAttribute("allUsers", userService.getAllUsers());
+            req.setAttribute("users", userService.getAllUsers()); // ✅ Fixed!
 
         } catch (Exception e) {
             req.setAttribute("totalUsers",    0);
@@ -103,12 +97,11 @@ public class AdminServlet extends HttpServlet {
             req.setAttribute("countONeg",  0);
             req.setAttribute("countABNeg", 0);
             req.setAttribute("pendingList", new ArrayList<>());
-            req.setAttribute("allUsers",    new ArrayList<>());
+            req.setAttribute("users", new ArrayList<>()); // ✅ Fixed!
         }
         req.getRequestDispatcher("/adminDashboard.jsp").forward(req, res);
     }
 
-    // ── MANAGE USERS PAGE ──
     private void showManageUsers(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         try {
@@ -123,7 +116,6 @@ public class AdminServlet extends HttpServlet {
         req.getRequestDispatcher("/manageUsers.jsp").forward(req, res);
     }
 
-    // ── APPROVE USER ──
     private void handleApprove(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
         try {
@@ -136,7 +128,6 @@ public class AdminServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/admin/dashboard");
     }
 
-    // ── REJECT USER ──
     private void handleReject(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
         try {
@@ -149,7 +140,6 @@ public class AdminServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/admin/dashboard");
     }
 
-    // ── DELETE USER ──
     private void handleDeleteUser(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
         try {
@@ -162,7 +152,6 @@ public class AdminServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/admin/dashboard");
     }
 
-    // ── SHOW EDIT USER FORM ──
     private void showEditUser(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         try {
@@ -177,16 +166,15 @@ public class AdminServlet extends HttpServlet {
         req.getRequestDispatcher("/manageUsers.jsp").forward(req, res);
     }
 
-    // ── UPDATE USER ──
     private void handleUpdateUser(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
         try {
-            int id        = Integer.parseInt(req.getParameter("userId"));
-            String name   = req.getParameter("fullName");
-            String email  = req.getParameter("email");
-            String phone  = req.getParameter("phone");
-            String blood  = req.getParameter("bloodType");
-            String role   = req.getParameter("role");
+            int id       = Integer.parseInt(req.getParameter("userId"));
+            String name  = req.getParameter("fullName");
+            String email = req.getParameter("email");
+            String phone = req.getParameter("phone");
+            String blood = req.getParameter("bloodType");
+            String role  = req.getParameter("role");
 
             userService.updateUser(id, name, email, phone, blood, role);
             req.getSession().setAttribute("successMessage", "✏️ User updated successfully!");
@@ -196,7 +184,6 @@ public class AdminServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/admin/dashboard");
     }
 
-    // ── VIEW USER ──
     private void showViewUser(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         try {

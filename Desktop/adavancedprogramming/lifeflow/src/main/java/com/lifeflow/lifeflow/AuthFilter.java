@@ -24,6 +24,8 @@ public class AuthFilter implements Filter {
         boolean isPublicPage = uri.contains("/login") ||
                 uri.contains("/register") ||
                 uri.contains("/index.jsp") ||
+                uri.contains("/about.jsp") ||
+                uri.contains("/contact.jsp") ||
                 uri.contains("/lifeflow_war_exploded/") && uri.endsWith("/") ||
                 uri.contains(".css") ||
                 uri.contains(".js") ||
