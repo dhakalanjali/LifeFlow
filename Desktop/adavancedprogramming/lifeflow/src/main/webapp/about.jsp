@@ -2,24 +2,12 @@
 <%@ page import="com.lifeflow.lifeflow.model.User" %>
 <%
     User currentUser = (User) session.getAttribute("user");
-    String dashboardLink = request.getContextPath() + "/login";
-    String dashboardLabel = "Login";
-    if(currentUser != null) {
-        if("admin".equals(currentUser.getRole())) {
-            dashboardLink = request.getContextPath() + "/admin/dashboard";
-            dashboardLabel = "← Admin Dashboard";
-        } else {
-            dashboardLink = request.getContextPath() + "/userDashboard.jsp";
-            dashboardLabel = "← My Dashboard";
-        }
-    }
 %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="About LifeFlow Blood Bank - our mission, values, services, and blood donation awareness information for Tribhuvan University coursework.">
     <title>About Us | LifeFlow Blood Bank</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -111,17 +99,6 @@
 </head>
 <body>
 
-<!-- BACK TO DASHBOARD BUTTON -->
-<a href="<%=dashboardLink%>"
-   style="position:fixed;top:72px;left:15px;
-          background:#a93226;color:white;
-          padding:8px 16px;border-radius:6px;
-          text-decoration:none;font-size:13px;
-          font-weight:bold;z-index:999;
-          box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-    <%=dashboardLabel%>
-</a>
-
 <nav role="navigation" aria-label="Main navigation">
     <a href="index.jsp" class="nav-brand">
         <span>&#129656; LifeFlow Blood Bank</span>
@@ -130,18 +107,33 @@
         <span></span><span></span><span></span>
     </div>
     <ul class="nav-links" id="navLinks">
+        <%
+            if(currentUser != null && "admin".equals(currentUser.getRole())) {
+        %>
+        <li><a href="<%=request.getContextPath()%>/adminDashboard.jsp">Admin Dashboard</a></li>
+        <li><a href="<%=request.getContextPath()%>/manageBloodStock.jsp">Blood Stock</a></li>
+        <li><a href="about.jsp" class="active">About</a></li>
+        <li><a href="contact.jsp">Contact</a></li>
+        <li><a href="<%=request.getContextPath()%>/logout">Logout</a></li>
+        <% } else { %>
         <li><a href="index.jsp">Home</a></li>
         <li><a href="requestBlood.jsp">Request Blood</a></li>
         <li><a href="reports.jsp">Reports</a></li>
-        <li><a href="about.jsp" class="active" aria-current="page">About</a></li>
+        <li><a href="about.jsp" class="active">About</a></li>
         <li><a href="contact.jsp">Contact</a></li>
+        <% if(currentUser != null) { %>
+        <li><a href="<%=request.getContextPath()%>/logout">Logout</a></li>
+        <% } else { %>
+        <li><a href="<%=request.getContextPath()%>/login">Login</a></li>
+        <% } %>
+        <% } %>
     </ul>
 </nav>
 
 <header class="hero" role="banner">
     <h1>Saving Lives, One Drop at a Time</h1>
     <p>LifeFlow Blood Bank has been at the heart of emergency healthcare in Kathmandu since 2005, connecting donors with patients who need it most.</p>
-    <a href="requestBlood.jsp" class="hero-btn" aria-label="Request blood now">Request Blood Now</a>
+    <a href="requestBlood.jsp" class="hero-btn">Request Blood Now</a>
 </header>
 
 <section class="stats-strip" aria-label="Organisation statistics">
@@ -259,7 +251,7 @@
 </section>
 
 <footer role="contentinfo">
-    <p>&copy; 2024 LifeFlow Blood Bank Management System &mdash; Tribhuvan University |
+    <p>&copy; 2026 LifeFlow Blood Bank Management System |
         <a href="contact.jsp">Contact Us</a>
     </p>
 </footer>
