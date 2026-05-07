@@ -2,7 +2,6 @@ package com.lifeflow.lifeflow.dao;
 
 import com.lifeflow.lifeflow.model.BloodRequest;
 import com.lifeflow.lifeflow.db.DBConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
