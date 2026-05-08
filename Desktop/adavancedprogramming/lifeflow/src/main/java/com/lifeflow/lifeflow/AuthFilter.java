@@ -26,7 +26,7 @@ public class AuthFilter implements Filter {
                 uri.contains("/index.jsp") ||
                 uri.contains("/about.jsp") ||
                 uri.contains("/contact.jsp") ||
-                uri.contains("/lifeflow_war_exploded/") && uri.endsWith("/") ||
+                uri.endsWith("/") ||
                 uri.contains(".css") ||
                 uri.contains(".js") ||
                 uri.contains(".png") ||

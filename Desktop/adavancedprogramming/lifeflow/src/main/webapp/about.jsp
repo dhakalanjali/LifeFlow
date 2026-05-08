@@ -42,22 +42,25 @@
         .sidebar-footer a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.6); text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
         .sidebar-footer a:hover { background: rgba(255,255,255,0.15); color: white; }
 
-        /* ── MAIN WRAPPER ── */
+        /* ── MAIN ── */
         .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .main.with-sidebar { margin-left: 240px; }
 
-        /* ── TOPBAR ── */
-        .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
-        .topbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .topbar-brand .drop { width: 28px; height: 28px; background: var(--red); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); flex-shrink: 0; }
-        .topbar-brand span { color: var(--text); font-size: 18px; font-weight: 800; }
-        .topbar-brand em { color: var(--red); font-style: normal; }
-        .topbar-nav { display: flex; align-items: center; gap: 4px; }
-        .topbar-nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; }
-        .topbar-nav a:hover { color: var(--text); background: var(--bg); }
-        .topbar-nav a.active { color: white; background: var(--red); }
-        .topbar-nav a.logout { color: #e57373; }
-        .topbar-nav a.logout:hover { background: var(--red-light); color: var(--red); }
+        /* ── WHITE NAVBAR (guest/user only) ── */
+        .navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        .navbar .logo { color: #C0392B; font-size: 22px; font-weight: 800; text-decoration: none; }
+        .navbar .nav-links { display: flex; align-items: center; }
+        .navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; font-weight: 600; transition: color 0.2s; }
+        .navbar .nav-links a:hover { color: #C0392B; }
+        .navbar .nav-links a.active { color: #C0392B; font-weight: 700; }
+        .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: 800 !important; }
+        .btn-nav-login:hover { background-color: black !important; }
+        .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: 800 !important; }
+        .btn-nav-register:hover { background-color: black !important; color: white !important; border-color: black !important; }
+
+        /* ── ADMIN TOPBAR ── */
+        .admin-topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
+        .admin-topbar h2 { font-size: 18px; font-weight: 800; color: var(--text); }
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
@@ -70,7 +73,7 @@
         .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
         .hero p { font-size: 1rem; opacity: 0.85; margin-bottom: 2rem; }
         .hero-btn { display: inline-block; background: white; color: var(--red); padding: 0.85rem 2.5rem; border-radius: 50px; font-weight: 800; text-decoration: none; font-size: 0.95rem; transition: all 0.2s; }
-        .hero-btn:hover { background: var(--red-light); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .hero-btn:hover { background: var(--red-light); transform: translateY(-2px); }
 
         /* ── STATS STRIP ── */
         .stats-strip { background: var(--white); display: flex; justify-content: center; flex-wrap: wrap; box-shadow: var(--shadow); }
@@ -143,7 +146,7 @@
         @media(max-width: 768px) {
             .sidebar { display: none; }
             .main.with-sidebar { margin-left: 0; }
-            .topbar-nav { display: none; }
+            .navbar { padding: 15px 20px; }
             .hero h1 { font-size: 1.8rem; }
             .services-grid, .awareness-list, .mission-cards { grid-template-columns: 1fr; }
             .section-wrapper { padding: 2.5rem 1rem; }
@@ -152,7 +155,7 @@
 </head>
 <body>
 
-<!-- ── ADMIN SIDEBAR (only for admin) ── -->
+<!-- ── ADMIN SIDEBAR ── -->
 <% if(isAdmin) { %>
 <aside class="sidebar">
     <div class="sidebar-logo">
@@ -161,35 +164,17 @@
     </div>
     <div class="sidebar-section">Admin Panel</div>
     <nav class="sidebar-menu">
-        <a href="${pageContext.request.contextPath}/admin/dashboard">
-            <span class="icon">🏠</span> Dashboard
-        </a>
-        <a href="${pageContext.request.contextPath}/admin/manageUsers">
-            <span class="icon">👥</span> Manage Users
-        </a>
-        <a href="${pageContext.request.contextPath}/manageCamps.jsp">
-            <span class="icon">⛺</span> Manage Camps
-        </a>
-        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp">
-            <span class="icon">🩸</span> Blood Stock
-        </a>
-        <a href="${pageContext.request.contextPath}/bloodRequest">
-            <span class="icon">🔍</span> Search Blood
-        </a>
-        <a href="${pageContext.request.contextPath}/reports.jsp">
-            <span class="icon">📊</span> Reports
-        </a>
-        <a href="${pageContext.request.contextPath}/about.jsp" class="active">
-            <span class="icon">ℹ️</span> About
-        </a>
-        <a href="${pageContext.request.contextPath}/contact.jsp">
-            <span class="icon">📞</span> Contact
-        </a>
+        <a href="${pageContext.request.contextPath}/admin/dashboard"><span class="icon">🏠</span> Dashboard</a>
+        <a href="${pageContext.request.contextPath}/admin/manageUsers"><span class="icon">👥</span> Manage Users</a>
+        <a href="${pageContext.request.contextPath}/manageCamps.jsp"><span class="icon">⛺</span> Manage Camps</a>
+        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
+        <a href="${pageContext.request.contextPath}/bloodRequest"><span class="icon">🔍</span> Search Blood</a>
+        <a href="${pageContext.request.contextPath}/reports.jsp"><span class="icon">📊</span> Reports</a>
+        <a href="${pageContext.request.contextPath}/about.jsp" class="active"><span class="icon">ℹ️</span> About</a>
+        <a href="${pageContext.request.contextPath}/contact.jsp"><span class="icon">📞</span> Contact</a>
     </nav>
     <div class="sidebar-footer">
-        <a href="${pageContext.request.contextPath}/logout">
-            <span class="icon">🚪</span> Logout
-        </a>
+        <a href="${pageContext.request.contextPath}/logout"><span class="icon">🚪</span> Logout</a>
     </div>
 </aside>
 <% } %>
@@ -197,32 +182,33 @@
 <!-- ── MAIN ── -->
 <div class="main <%= isAdmin ? "with-sidebar" : "" %>">
 
-    <!-- TOPBAR -->
-    <header class="topbar">
-        <a href="index.jsp" class="topbar-brand">
-            <div class="drop"></div>
-            <span>&nbsp;Life<em>Flow</em></span>
-        </a>
-        <% if(isAdmin) { %>
+    <!-- ADMIN TOPBAR -->
+    <% if(isAdmin) { %>
+    <header class="admin-topbar">
+        <h2>ℹ️ About</h2>
         <div class="topbar-admin">
             <div class="admin-avatar">A</div>
             <span class="admin-name">Admin</span>
         </div>
-        <% } else { %>
-        <nav class="topbar-nav">
+    </header>
+    <% } else { %>
+    <!-- WHITE NAVBAR for guests and regular users -->
+    <nav class="navbar">
+        <a href="index.jsp" class="logo">🩸 LifeFlow</a>
+        <div class="nav-links">
             <a href="index.jsp">Home</a>
-            <a href="requestBlood.jsp">Request Blood</a>
-            <a href="reports.jsp">Reports</a>
             <a href="about.jsp" class="active">About</a>
             <a href="contact.jsp">Contact</a>
             <% if(currentUser != null) { %>
-            <a href="<%=request.getContextPath()%>/logout" class="logout">Logout</a>
+            <a href="<%=request.getContextPath()%>/userDashboard.jsp">My Dashboard</a>
+            <a href="<%=request.getContextPath()%>/logout" class="btn-nav-login">Logout</a>
             <% } else { %>
-            <a href="<%=request.getContextPath()%>/login">Login</a>
+            <a href="<%=request.getContextPath()%>/login" class="btn-nav-login">Login</a>
+            <a href="<%=request.getContextPath()%>/register" class="btn-nav-register">Register</a>
             <% } %>
-        </nav>
-        <% } %>
-    </header>
+        </div>
+    </nav>
+    <% } %>
 
     <!-- HERO -->
     <section class="hero">
@@ -230,7 +216,7 @@
             <div class="hero-tag">🩸 Est. 2005 · Kathmandu</div>
             <h1>Saving Lives, One Drop at a Time</h1>
             <p>LifeFlow Blood Bank has been at the heart of emergency healthcare in Kathmandu since 2005, connecting donors with patients who need it most.</p>
-            <a href="requestBlood.jsp" class="hero-btn">Request Blood Now</a>
+            <a href="contact.jsp" class="hero-btn">Contact Us</a>
         </div>
     </section>
 
@@ -269,21 +255,9 @@
                 <div class="divider"></div>
             </div>
             <div class="mission-cards">
-                <article class="mission-card">
-                    <div class="icon">❤️</div>
-                    <h3>Save Lives</h3>
-                    <p>Our primary goal is to ensure that no patient is denied life-saving blood due to shortage. We maintain critical stock levels at all times.</p>
-                </article>
-                <article class="mission-card">
-                    <div class="icon">👥</div>
-                    <h3>Community First</h3>
-                    <p>We actively engage with local communities to raise awareness about blood donation and recruit new donors from all backgrounds.</p>
-                </article>
-                <article class="mission-card">
-                    <div class="icon">🛡️</div>
-                    <h3>Safety &amp; Trust</h3>
-                    <p>All donated blood undergoes rigorous testing and screening. We follow Ministry of Health and WHO guidelines to ensure the highest safety standards.</p>
-                </article>
+                <article class="mission-card"><div class="icon">❤️</div><h3>Save Lives</h3><p>Our primary goal is to ensure that no patient is denied life-saving blood due to shortage.</p></article>
+                <article class="mission-card"><div class="icon">👥</div><h3>Community First</h3><p>We actively engage with local communities to raise awareness about blood donation.</p></article>
+                <article class="mission-card"><div class="icon">🛡️</div><h3>Safety &amp; Trust</h3><p>All donated blood undergoes rigorous testing following Ministry of Health and WHO guidelines.</p></article>
             </div>
         </div>
     </section>
@@ -297,12 +271,12 @@
                 <div class="divider"></div>
             </div>
             <div class="services-grid">
-                <article class="service-item"><div class="svc-icon">🩸</div><div><h3>Blood Collection</h3><p>Regular donation drives at our centre and mobile units across Kathmandu. Walk-in and appointment-based sessions available.</p></div></article>
-                <article class="service-item"><div class="svc-icon">📋</div><div><h3>Blood Request Processing</h3><p>Fast-track processing of blood requests from hospitals and patients. Emergency requests handled within 30 minutes.</p></div></article>
-                <article class="service-item"><div class="svc-icon">🔬</div><div><h3>Blood Screening &amp; Testing</h3><p>All donations are tested for infectious diseases and blood type compatibility before being added to our stock.</p></div></article>
-                <article class="service-item"><div class="svc-icon">🚑</div><div><h3>Emergency Supply</h3><p>24/7 emergency blood supply service for critical care units, trauma centres, and surgical teams across Kathmandu.</p></div></article>
-                <article class="service-item"><div class="svc-icon">📚</div><div><h3>Donor Education</h3><p>Workshops, leaflets, and online resources to educate the public about the importance and process of blood donation.</p></div></article>
-                <article class="service-item"><div class="svc-icon">📊</div><div><h3>Stock Reporting</h3><p>Real-time blood stock monitoring and reporting for partner hospitals, ensuring transparency and preparedness.</p></div></article>
+                <article class="service-item"><div class="svc-icon">🩸</div><div><h3>Blood Collection</h3><p>Regular donation drives at our centre and mobile units across Kathmandu.</p></div></article>
+                <article class="service-item"><div class="svc-icon">📋</div><div><h3>Blood Request Processing</h3><p>Fast-track processing of blood requests. Emergency requests handled within 30 minutes.</p></div></article>
+                <article class="service-item"><div class="svc-icon">🔬</div><div><h3>Blood Screening &amp; Testing</h3><p>All donations are tested for infectious diseases and blood type compatibility.</p></div></article>
+                <article class="service-item"><div class="svc-icon">🚑</div><div><h3>Emergency Supply</h3><p>24/7 emergency blood supply service for critical care units across Kathmandu.</p></div></article>
+                <article class="service-item"><div class="svc-icon">📚</div><div><h3>Donor Education</h3><p>Workshops and online resources to educate the public about blood donation.</p></div></article>
+                <article class="service-item"><div class="svc-icon">📊</div><div><h3>Stock Reporting</h3><p>Real-time blood stock monitoring and reporting for partner hospitals.</p></div></article>
             </div>
         </div>
     </section>
@@ -312,16 +286,16 @@
         <div class="section-wrapper">
             <div class="section-title">
                 <h2>Blood Donation Awareness</h2>
-                <p>Understanding the facts about blood donation helps break down barriers and encourages more people to give.</p>
+                <p>Understanding the facts about blood donation helps encourage more people to give.</p>
                 <div class="divider"></div>
             </div>
             <div class="awareness-list">
                 <div class="awareness-item"><span class="check">✓</span><p><strong>One donation saves up to 3 lives.</strong> Your single donation can be separated into red cells, platelets, and plasma.</p></div>
-                <div class="awareness-item"><span class="check">✓</span><p><strong>Donation takes only 45–60 minutes.</strong> The actual blood draw takes around 10 minutes. The rest is registration and recovery.</p></div>
-                <div class="awareness-item"><span class="check">✓</span><p><strong>O- is the universal donor type.</strong> It can be given to any patient in an emergency, making it the most critical blood type to stock.</p></div>
-                <div class="awareness-item"><span class="check">✓</span><p><strong>You can donate every 12 weeks.</strong> Healthy adults aged 17–66 can donate whole blood up to four times per year.</p></div>
-                <div class="awareness-item"><span class="check">✓</span><p><strong>Blood cannot be manufactured.</strong> There is no artificial substitute for human blood, making donors irreplaceable.</p></div>
-                <div class="awareness-item"><span class="check">✓</span><p><strong>Demand never stops.</strong> Every day, hospitals in Nepal use around 5,000 units of blood for patients in need.</p></div>
+                <div class="awareness-item"><span class="check">✓</span><p><strong>Donation takes only 45–60 minutes.</strong> The actual blood draw takes around 10 minutes.</p></div>
+                <div class="awareness-item"><span class="check">✓</span><p><strong>O- is the universal donor type.</strong> It can be given to any patient in an emergency.</p></div>
+                <div class="awareness-item"><span class="check">✓</span><p><strong>You can donate every 12 weeks.</strong> Healthy adults aged 17–66 can donate up to four times per year.</p></div>
+                <div class="awareness-item"><span class="check">✓</span><p><strong>Blood cannot be manufactured.</strong> There is no artificial substitute for human blood.</p></div>
+                <div class="awareness-item"><span class="check">✓</span><p><strong>Demand never stops.</strong> Every day, hospitals in Nepal use around 5,000 units of blood.</p></div>
             </div>
         </div>
     </section>
@@ -331,14 +305,13 @@
         <h2>Ready to Make a Difference?</h2>
         <p>Whether you need blood urgently or want to become a donor, we are here to help 24 hours a day.</p>
         <div class="cta-buttons">
-            <a href="requestBlood.jsp" class="cta-btn-primary">Request Blood</a>
+            <a href="<%=request.getContextPath()%>/register" class="cta-btn-primary">Register Now</a>
             <a href="contact.jsp" class="cta-btn-outline">Contact Us</a>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer>
-        <p>&copy; 2026 LifeFlow Blood Bank Management System &mdash; <a href="contact.jsp">Contact Us</a></p>
+        <p>&copy; 2026 LifeFlow Blood Bank &mdash; <a href="contact.jsp">Contact Us</a></p>
     </footer>
 
 </div>
