@@ -6,26 +6,33 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BloodRequestDAO.java
+ * Author: Pritam Rai
+ * Handles all database operations for blood requests.
+ */
 public class BloodRequestDAO {
 
+    /**
+     * Inserts a new blood request into the database.
+     */
     public boolean insertRequest(BloodRequest bloodRequest) {
         String sql = "INSERT INTO blood_requests " +
-                     "(user_id, patient_name, blood_group, hospital_name, " +
-                     "contact_number, urgency_level, request_date, additional_notes, status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "(user_id, patient_name, hospital_name, contact_number, " +
+                "urgency_level, additional_notes, blood_type, status) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bloodRequest.getUserId());
             pstmt.setString(2, bloodRequest.getPatientName());
-            pstmt.setString(3, bloodRequest.getBloodGroup());
-            pstmt.setString(4, bloodRequest.getHospitalName());
-            pstmt.setString(5, bloodRequest.getContactNumber());
-            pstmt.setString(6, bloodRequest.getUrgencyLevel());
-            pstmt.setDate(7, Date.valueOf(bloodRequest.getRequestDate()));
-            pstmt.setString(8, bloodRequest.getAdditionalNotes());
-            pstmt.setString(9, bloodRequest.getStatus());
+            pstmt.setString(3, bloodRequest.getHospitalName());
+            pstmt.setString(4, bloodRequest.getContactNumber());
+            pstmt.setString(5, bloodRequest.getUrgencyLevel());
+            pstmt.setString(6, bloodRequest.getAdditionalNotes());
+            pstmt.setString(7, bloodRequest.getBloodGroup());
+            pstmt.setString(8, "pending");
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -36,6 +43,9 @@ public class BloodRequestDAO {
         }
     }
 
+    /**
+     * Returns all blood requests from the database.
+     */
     public List<BloodRequest> getAllRequests() {
         List<BloodRequest> requestList = new ArrayList<>();
         String sql = "SELECT * FROM blood_requests ORDER BY request_date DESC";
@@ -54,6 +64,9 @@ public class BloodRequestDAO {
         return requestList;
     }
 
+    /**
+     * Returns a single blood request by ID.
+     */
     public BloodRequest getRequestById(int requestId) {
         String sql = "SELECT * FROM blood_requests WHERE request_id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -68,6 +81,9 @@ public class BloodRequestDAO {
         return null;
     }
 
+    /**
+     * Updates the status of a blood request.
+     */
     public boolean updateRequestStatus(int requestId, String newStatus) {
         String sql = "UPDATE blood_requests SET status = ? WHERE request_id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -81,19 +97,22 @@ public class BloodRequestDAO {
         }
     }
 
+    /**
+     * Maps a ResultSet row to a BloodRequest object.
+     */
     private BloodRequest mapResultSetToBloodRequest(ResultSet rs) throws SQLException {
         BloodRequest br = new BloodRequest();
         br.setRequestId(rs.getInt("request_id"));
         br.setUserId(rs.getInt("user_id"));
         br.setPatientName(rs.getString("patient_name"));
-        br.setBloodGroup(rs.getString("blood_group"));
         br.setHospitalName(rs.getString("hospital_name"));
         br.setContactNumber(rs.getString("contact_number"));
         br.setUrgencyLevel(rs.getString("urgency_level"));
+        br.setAdditionalNotes(rs.getString("additional_notes"));
+        br.setBloodGroup(rs.getString("blood_type"));
+        br.setStatus(rs.getString("status"));
         Date sqlDate = rs.getDate("request_date");
         if (sqlDate != null) br.setRequestDate(sqlDate.toLocalDate());
-        br.setAdditionalNotes(rs.getString("additional_notes"));
-        br.setStatus(rs.getString("status"));
         return br;
     }
 }
