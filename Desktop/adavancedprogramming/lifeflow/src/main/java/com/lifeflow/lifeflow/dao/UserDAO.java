@@ -21,9 +21,18 @@ public class UserDAO {
         u.setBloodType(rs.getString("blood_type"));
         u.setRole(rs.getString("role"));
         u.setIsApproved(rs.getString("is_approved"));
-        try { u.setDateOfBirth(rs.getString("date_of_birth")); } catch(SQLException e) {}
-        try { u.setGender(rs.getString("gender")); } catch(SQLException e) {}
-        try { u.setAddress(rs.getString("address")); } catch(SQLException e) {}
+        try {
+            u.setDateOfBirth(rs.getString("date_of_birth"));
+        } catch (SQLException e) {
+        }
+        try {
+            u.setGender(rs.getString("gender"));
+        } catch (SQLException e) {
+        }
+        try {
+            u.setAddress(rs.getString("address"));
+        } catch (SQLException e) {
+        }
         return u;
     }
 
@@ -231,15 +240,22 @@ public class UserDAO {
         return 0;
     }
 
-    // LOGIN user ← FIXED!
+    // LOGIN user - Fixed for BCrypt
     public User loginUser(String email, String password) {
-        String sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_approved = 'approved'";
+        // Step 1: Get user by email only (not password in SQL)
+        String sql = "SELECT * FROM users WHERE email = ? AND is_approved = 'approved'";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, email);
-            ps.setString(2, PasswordUtil.encryptPassword(password)); // ✅ Fixed!
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return extractUser(rs);
+            if (rs.next()) {
+                // Step 2: Get stored BCrypt hash from database
+                String storedPassword = rs.getString("password");
+                // Step 3: Use BCrypt to verify password
+                if (PasswordUtil.checkPassword(password, storedPassword)) {
+                    return extractUser(rs);
+                }
+            }
         } catch (SQLException e) {
             System.out.println("loginUser: " + e.getMessage());
         }

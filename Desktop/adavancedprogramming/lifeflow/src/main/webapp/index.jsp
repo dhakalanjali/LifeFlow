@@ -9,12 +9,17 @@
         /* NAVBAR */
         .navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
         .navbar .logo { color: #C0392B; font-size: 26px; font-weight: bold; text-decoration: none; }
+        .navbar .nav-links { display: flex; align-items: center; }
         .navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; }
         .navbar .nav-links a:hover { color: #C0392B; }
         .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; }
-        .btn-nav-login:hover { background-color: black !important; color: white !important; }
+        .btn-nav-login:hover { background-color: black !important; }
         .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: bold; }
         .btn-nav-register:hover { background-color: black !important; color: white !important; border-color: black !important; }
+
+        /* HAMBURGER */
+        .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 5px; background: none; border: none; padding: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: #C0392B; border-radius: 3px; display: block; }
 
         /* HERO */
         .hero { background: linear-gradient(135deg, rgba(192,57,43,0.00) 0%, rgba(146,43,33,0.92) 100%), url('images/blood_donation.webp'); background-size: cover; background-position: center; background-attachment: fixed; min-height: 90vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 60px 20px; }
@@ -83,6 +88,25 @@
         .footer-links a { display: block; color: #f5f5f5; text-decoration: none; margin-bottom: 8px; font-size: 14px; }
         .footer-links a:hover { color: black; }
         .footer-bottom { background-color: #922B21; padding: 15px 50px; text-align: center; color: #f5f5f5; font-size: 13px; }
+
+        /* RESPONSIVE */
+        @media(max-width: 768px) {
+            .navbar { padding: 15px 20px; }
+            .hamburger { display: flex; }
+            .navbar .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); gap: 10px; z-index: 99; }
+            .navbar .nav-links.open { display: flex; }
+            .navbar .nav-links a { margin-left: 0; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+            .hero-content h1 { font-size: 32px; }
+            .hero-content p { font-size: 16px; }
+            .stats { gap: 30px; padding: 40px 20px; }
+            .stat-item h2 { font-size: 36px; }
+            .features { padding: 50px 20px; }
+            .how-it-works { padding: 50px 20px; }
+            .why-us { padding: 50px 20px; }
+            .cta { padding: 50px 20px; }
+            .footer { padding: 30px 20px; flex-direction: column; }
+            .footer-bottom { padding: 15px 20px; }
+        }
     </style>
 </head>
 <body>
@@ -90,7 +114,10 @@
 <!-- NAVBAR -->
 <nav class="navbar">
     <a href="index.jsp" class="logo">🩸 LifeFlow</a>
-    <div class="nav-links">
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#how-it-works">How it Works</a>
         <a href="about.jsp">About</a>
@@ -197,6 +224,18 @@
         <a href="contact.jsp" style="color:#fca5a5; text-decoration:none;">Contact</a>
     </p>
 </div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    // Close menu when link clicked
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('navLinks').classList.remove('open');
+        });
+    });
+</script>
 
 </body>
 </html>

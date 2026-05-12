@@ -1,29 +1,40 @@
 package com.lifeflow.lifeflow.util;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.mindrot.jbcrypt.BCrypt;
 
+/**
+ * PasswordUtil.java
+ * Author: Angely Dhakal
+ * Utility class for password encryption and verification using BCrypt.
+ * BCrypt is used instead of MD5 as it includes built-in salting and
+ * is resistant to brute-force attacks.
+ */
 public class PasswordUtil {
 
-    // Method to encrypt password using MD5
+    // Number of salt rounds - higher = more secure but slower
+    // 12 is the recommended value for production
+    private static final int SALT_ROUNDS = 12;
+
+    /**
+     * Encrypts a plain text password using BCrypt hashing.
+     * BCrypt automatically generates a salt and includes it in the hash.
+     * @param password - plain text password from user
+     * @return BCrypt hashed password (60 character string)
+     */
     public static String encryptPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return BCrypt.hashpw(password, BCrypt.gensalt(SALT_ROUNDS));
     }
 
-    // Method to check password during login
+    /**
+     * Verifies a plain text password against a stored BCrypt hash.
+     * @param inputPassword - plain text password entered by user
+     * @param storedPassword - BCrypt hash stored in database
+     * @return true if passwords match, false otherwise
+     */
     public static boolean checkPassword(String inputPassword, String storedPassword) {
-        String encryptedInput = encryptPassword(inputPassword);
-        return encryptedInput != null && encryptedInput.equals(storedPassword);
+        if (inputPassword == null || storedPassword == null) {
+            return false;
+        }
+        return BCrypt.checkpw(inputPassword, storedPassword);
     }
 }
