@@ -15,7 +15,7 @@ public class BloodRequest {
     private String status;
 
     public BloodRequest() {
-        this.status = "Pending";
+        this.status = "pending"; // ✅ FIXED: lowercase to match DB
     }
 
     public BloodRequest(int requestId, int userId, String patientName,
@@ -47,7 +47,7 @@ public class BloodRequest {
         this.urgencyLevel    = urgencyLevel;
         this.requestDate     = requestDate;
         this.additionalNotes = additionalNotes;
-        this.status          = "Pending";
+        this.status          = "pending"; // ✅ FIXED: lowercase to match DB
     }
 
     // Getters and Setters
@@ -72,8 +72,11 @@ public class BloodRequest {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public boolean isCritical() { return "Critical".equalsIgnoreCase(this.urgencyLevel); }
-    public boolean isPending() { return "Pending".equalsIgnoreCase(this.status); }
+    // ✅ FIXED: all helpers use equalsIgnoreCase so they work regardless of case
+    public boolean isCritical()  { return "critical".equalsIgnoreCase(this.urgencyLevel); }
+    public boolean isPending()   { return "pending".equalsIgnoreCase(this.status); }
+    public boolean isApproved()  { return "approved".equalsIgnoreCase(this.status); }  // ✅ NEW
+    public boolean isCancelled() { return "cancelled".equalsIgnoreCase(this.status); } // ✅ NEW
 
     @Override
     public String toString() {

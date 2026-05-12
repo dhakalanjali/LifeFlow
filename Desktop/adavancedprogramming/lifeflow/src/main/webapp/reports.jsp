@@ -1,13 +1,60 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List, java.util.ArrayList" %>
 <%@ page import="com.lifeflow.lifeflow.dao.BloodRequestDAO" %>
+<%@ page import="com.lifeflow.lifeflow.dao.BloodStockDAO" %>
 <%@ page import="com.lifeflow.lifeflow.model.BloodRequest" %>
+<%@ page import="com.lifeflow.lifeflow.model.BloodStock" %>
 <%@ page import="com.lifeflow.lifeflow.model.User" %>
 <%
     User loggedUser = (User) session.getAttribute("user");
     if(loggedUser == null || !loggedUser.getRole().equals("admin")) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
+    }
+
+    // ── Load blood stock from DB ──
+    BloodStockDAO stockDAO = new BloodStockDAO();
+    List<BloodStock> stockList = stockDAO.getAllBloodStock();
+    int totalUnits = 0;
+    for (BloodStock bs : stockList) totalUnits += bs.getUnitsAvailable();
+
+    // ── Load requests from DB ──
+    BloodRequestDAO reqDAO = new BloodRequestDAO();
+    List<BloodRequest> requests = new ArrayList<>();
+    String loadError = null;
+    int approvedCount = 0, pendingCount = 0, cancelledCount = 0;
+
+    // ── Handle approve/reject action FIRST (before loading counts) ──
+    String actionMsg = null;
+    String actionType = request.getParameter("actionType");
+    String actionIdStr = request.getParameter("actionId");
+    if (actionType != null && actionIdStr != null) {
+        try {
+            int actionId = Integer.parseInt(actionIdStr.trim());
+            // ✅ FIXED: use "approved" to match DB, not "fulfilled"
+            String newStatus = actionType.equals("approve") ? "approved" : "cancelled";
+            boolean updated = reqDAO.updateRequestStatus(actionId, newStatus);
+            actionMsg = updated
+                    ? "✅ Request #" + String.format("%03d", actionId) + " marked as " + newStatus + "."
+                    : "⚠️ Could not update request.";
+        } catch(Exception e) {
+            actionMsg = "⚠️ Error: " + e.getMessage();
+        }
+    }
+
+    // ── Load requests (after action so counts are fresh) ──
+    try {
+        requests = reqDAO.getAllRequests();
+        for (BloodRequest br : requests) {
+            if (br.getPatientName() == null || br.getPatientName().trim().isEmpty()) continue;
+            String s = br.getStatus() != null ? br.getStatus().toLowerCase() : "";
+            // ✅ FIXED: check "approved" not "fulfilled"
+            if (s.equals("approved"))        approvedCount++;
+            else if (s.equals("cancelled"))  cancelledCount++;
+            else                             pendingCount++;
+        }
+    } catch(Exception e) {
+        loadError = e.getMessage();
     }
 %>
 <!DOCTYPE html>
@@ -35,7 +82,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-        /* ── SIDEBAR (exact copy from adminDashboard) ── */
+        /* ── SIDEBAR ── */
         .sidebar { width: 240px; background: var(--red-dark); min-height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 10px; }
         .sidebar-logo .logo-icon { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
@@ -53,7 +100,7 @@
         /* ── MAIN ── */
         .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* ── TOPBAR (exact copy from adminDashboard) ── */
+        /* ── TOPBAR ── */
         .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
         .topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
         .topbar-left span { font-size: 12px; color: var(--text-muted); }
@@ -65,6 +112,10 @@
         /* ── CONTENT ── */
         .content { padding: 28px; flex: 1; }
         .section-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+        /* ── ACTION MESSAGE ── */
+        .action-msg { padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; font-weight: 700; background: #eafaf1; color: #1e8449; border-left: 5px solid var(--green); }
+        .action-msg.error { background: #fdecea; color: var(--red); border-color: var(--red); }
 
         /* ── STAT CARDS ── */
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
@@ -94,6 +145,19 @@
         .bar-medium { background: var(--orange); }
         .bar-low    { background: var(--red); }
 
+        /* ── SUMMARY ROW ── */
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 28px; }
+        .summary-card { background: white; border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; border-left: 5px solid; }
+        .summary-card.approved  { border-color: var(--green); }
+        .summary-card.pending   { border-color: var(--orange); }
+        .summary-card.cancelled { border-color: var(--text-muted); }
+        .summary-icon { font-size: 26px; }
+        .summary-num { font-size: 26px; font-weight: 800; }
+        .summary-card.approved  .summary-num { color: var(--green); }
+        .summary-card.pending   .summary-num { color: var(--orange); }
+        .summary-card.cancelled .summary-num { color: var(--text-muted); }
+        .summary-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
         /* ── TABLE ── */
         .table-wrap { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 28px; }
         .table-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fdecea; }
@@ -104,29 +168,50 @@
         .filter-bar input:focus, .filter-bar select:focus { border-color: var(--red); }
         .btn-reset { padding: 8px 16px; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: background 0.2s; }
         .btn-reset:hover { background: var(--red-dark); }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { background: var(--red); color: white; padding: 12px 18px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
-        tbody td { padding: 13px 18px; font-size: 13px; border-bottom: 1px solid var(--border); font-weight: 600; }
+
+        /* ── TABLE SCROLL ── */
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        thead th { background: var(--red); color: white; padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
+        tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); font-weight: 600; vertical-align: middle; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: #fdf8f8; }
+
+        /* ── BADGES ── */
         .badge { display: inline-block; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
         .badge.pending   { background: #fef9e7; color: #d68910; }
-        .badge.fulfilled { background: #eafaf1; color: #1e8449; }
+        /* ✅ approved uses green style */
+        .badge.approved  { background: #eafaf1; color: #1e8449; }
         .badge.cancelled { background: #f2f3f4; color: #7f8c8d; }
         .badge.critical  { background: #fdecea; color: var(--red); }
-        .badge.blood     { background: #fdecea; color: var(--red); }
+        .badge.urgent    { background: #fef9e7; color: #d68910; }
+        .badge.normal    { background: #eafaf1; color: #1e8449; }
+        .badge.blood     { background: #fdecea; color: var(--red); border: 1px solid #f5b7b1; }
+
+        /* ── CONTACT NUMBER ── */
+        .contact-num { font-size: 12px; color: var(--blue); font-weight: 700; white-space: nowrap; }
+
+        /* ── NOTES CELL ── */
+        .notes-cell { max-width: 140px; font-size: 12px; color: var(--text-muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notes-cell.empty-note { font-style: italic; color: #bdc3c7; }
+
+        /* ── ACTION BUTTONS ── */
+        .action-btns { display: flex; gap: 6px; white-space: nowrap; }
+        .btn-approve, .btn-reject { padding: 5px 12px; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-approve { background: #eafaf1; color: #1e8449; border: 1.5px solid #a9dfbf; }
+        .btn-approve:hover { background: var(--green); color: white; }
+        .btn-reject  { background: #fdecea; color: var(--red); border: 1.5px solid #f5b7b1; }
+        .btn-reject:hover  { background: var(--red); color: white; }
+        .btn-disabled { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f2f3f4; color: #bdc3c7; cursor: default; border: 1.5px solid #e5e8e8; }
+
         .empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
 
-        /* ── RESPONSIVE ── */
         @media(max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; }
             .main { margin-left: 0; }
             .stat-grid { grid-template-columns: repeat(2, 1fr); }
             .blood-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @media(max-width: 480px) {
-            .stat-grid { grid-template-columns: 1fr; }
-            .blood-grid { grid-template-columns: repeat(2, 1fr); }
+            .summary-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -140,35 +225,17 @@
     </div>
     <div class="sidebar-section">Admin Panel</div>
     <nav class="sidebar-menu">
-        <a href="${pageContext.request.contextPath}/admin/dashboard">
-            <span class="icon">🏠</span> Dashboard
-        </a>
-        <a href="${pageContext.request.contextPath}/admin/manageUsers">
-            <span class="icon">👥</span> Manage Users
-        </a>
-        <a href="${pageContext.request.contextPath}/manageCamps.jsp">
-            <span class="icon">⛺</span> Manage Camps
-        </a>
-        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp">
-            <span class="icon">🩸</span> Blood Stock
-        </a>
-        <a href="${pageContext.request.contextPath}/bloodRequest">
-            <span class="icon">🔍</span> Search Blood
-        </a>
-        <a href="${pageContext.request.contextPath}/reports.jsp" class="active">
-            <span class="icon">📊</span> Reports
-        </a>
-        <a href="${pageContext.request.contextPath}/about.jsp">
-            <span class="icon">ℹ️</span> About
-        </a>
-        <a href="${pageContext.request.contextPath}/contact.jsp">
-            <span class="icon">📞</span> Contact
-        </a>
+        <a href="${pageContext.request.contextPath}/admin/dashboard"><span class="icon">🏠</span> Dashboard</a>
+        <a href="${pageContext.request.contextPath}/admin/manageUsers"><span class="icon">👥</span> Manage Users</a>
+        <a href="${pageContext.request.contextPath}/manageCamps.jsp"><span class="icon">⛺</span> Manage Camps</a>
+        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
+        <a href="${pageContext.request.contextPath}/bloodRequest"><span class="icon">🔍</span> Search Blood</a>
+        <a href="${pageContext.request.contextPath}/reports.jsp" class="active"><span class="icon">📊</span> Reports</a>
+        <a href="${pageContext.request.contextPath}/about.jsp"><span class="icon">ℹ️</span> About</a>
+        <a href="${pageContext.request.contextPath}/contact.jsp"><span class="icon">📞</span> Contact</a>
     </nav>
     <div class="sidebar-footer">
-        <a href="${pageContext.request.contextPath}/logout">
-            <span class="icon">🚪</span> Logout
-        </a>
+        <a href="${pageContext.request.contextPath}/logout"><span class="icon">🚪</span> Logout</a>
     </div>
 </aside>
 
@@ -191,61 +258,100 @@
 
     <div class="content">
 
-        <!-- STAT CARDS -->
+        <!-- ── ACTION FEEDBACK MESSAGE ── -->
+        <% if (actionMsg != null) { %>
+        <div class="action-msg <%= actionMsg.startsWith("⚠️") ? "error" : "" %>">
+            <%= actionMsg %>
+        </div>
+        <% } %>
+
+        <!-- ── STAT CARDS ── -->
         <div class="stat-grid">
             <div class="stat-card">
                 <div class="stat-icon red">🩸</div>
                 <div class="stat-info">
-                    <div class="num">342</div>
+                    <div class="num"><%= totalUnits %></div>
                     <div class="lbl">Total Blood Units</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon green">✅</div>
                 <div class="stat-info">
-                    <div class="num green">128</div>
-                    <div class="lbl">Requests Fulfilled</div>
+                    <!-- ✅ FIXED: approvedCount instead of fulfilledCount -->
+                    <div class="num green"><%= approvedCount %></div>
+                    <div class="lbl">Requests Approved</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon orange">⏳</div>
                 <div class="stat-info">
-                    <div class="num orange">14</div>
+                    <div class="num orange"><%= pendingCount %></div>
                     <div class="lbl">Pending Requests</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon blue">🏥</div>
+                <div class="stat-icon blue">📋</div>
                 <div class="stat-info">
-                    <div class="num blue">89</div>
-                    <div class="lbl">Total Donors</div>
+                    <div class="num blue"><%= requests.size() %></div>
+                    <div class="lbl">Total Requests</div>
                 </div>
             </div>
         </div>
 
-        <!-- BLOOD STOCK -->
+        <!-- ── BLOOD STOCK ── -->
         <div class="section-title">🩸 Current Blood Stock Levels</div>
         <div class="blood-grid">
-            <div class="bcard"><div class="bg">A+</div><div class="bc">45</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-high" style="width:90%"></div></div></div>
-            <div class="bcard"><div class="bg">A-</div><div class="bc">12</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-medium" style="width:40%"></div></div></div>
-            <div class="bcard"><div class="bg">B+</div><div class="bc">38</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-high" style="width:76%"></div></div></div>
-            <div class="bcard"><div class="bg">B-</div><div class="bc">8</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-low" style="width:16%"></div></div></div>
-            <div class="bcard"><div class="bg">AB+</div><div class="bc">22</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-medium" style="width:44%"></div></div></div>
-            <div class="bcard"><div class="bg">AB-</div><div class="bc">5</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-low" style="width:10%"></div></div></div>
-            <div class="bcard"><div class="bg">O+</div><div class="bc">60</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-high" style="width:100%"></div></div></div>
-            <div class="bcard"><div class="bg">O-</div><div class="bc">18</div><div class="bl">units</div><div class="bar"><div class="bar-fill bar-medium" style="width:36%"></div></div></div>
+            <%
+                int maxUnits = 50;
+                for (BloodStock bs : stockList) {
+                    int units = bs.getUnitsAvailable();
+                    int pct = Math.min((units * 100) / maxUnits, 100);
+                    String barClass = pct >= 60 ? "bar-high" : (pct >= 30 ? "bar-medium" : "bar-low");
+            %>
+            <div class="bcard">
+                <div class="bg"><%= bs.getBloodGroup() %></div>
+                <div class="bc"><%= units %></div>
+                <div class="bl">units</div>
+                <div class="bar"><div class="bar-fill <%= barClass %>" style="width:<%= pct %>%"></div></div>
+            </div>
+            <% } %>
         </div>
 
-        <!-- REQUESTS TABLE -->
+        <!-- ── REQUEST SUMMARY ── -->
+        <div class="section-title">📈 Request Summary</div>
+        <div class="summary-grid">
+            <!-- ✅ FIXED: class "approved" and approvedCount -->
+            <div class="summary-card approved">
+                <div class="summary-icon">✅</div>
+                <div>
+                    <div class="summary-num"><%= approvedCount %></div>
+                    <div class="summary-lbl">Approved Requests</div>
+                </div>
+            </div>
+            <div class="summary-card pending">
+                <div class="summary-icon">⏳</div>
+                <div>
+                    <div class="summary-num"><%= pendingCount %></div>
+                    <div class="summary-lbl">Pending Requests</div>
+                </div>
+            </div>
+            <div class="summary-card cancelled">
+                <div class="summary-icon">❌</div>
+                <div>
+                    <div class="summary-num"><%= cancelledCount %></div>
+                    <div class="summary-lbl">Cancelled Requests</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── REQUESTS TABLE ── -->
         <div class="section-title">📋 Blood Request Records</div>
         <div class="table-wrap">
             <div class="table-header">
                 <h3>📋 All Requests</h3>
             </div>
-
-            <!-- FILTER BAR -->
             <div class="filter-bar">
-                <input type="text" id="searchInput" placeholder="Search by patient or hospital..." oninput="filterTable()">
+                <input type="text" id="searchInput" placeholder="Search by patient, hospital, or contact..." oninput="filterTable()">
                 <select id="filterBloodGroup" onchange="filterTable()">
                     <option value="">All Blood Groups</option>
                     <option value="A+">A+</option><option value="A-">A-</option>
@@ -253,120 +359,151 @@
                     <option value="AB+">AB+</option><option value="AB-">AB-</option>
                     <option value="O+">O+</option><option value="O-">O-</option>
                 </select>
+                <select id="filterUrgency" onchange="filterTable()">
+                    <option value="">All Urgency</option>
+                    <option value="critical">Critical</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="normal">Normal</option>
+                </select>
                 <select id="filterStatus" onchange="filterTable()">
                     <option value="">All Statuses</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Fulfilled">Fulfilled</option>
-                    <option value="Cancelled">Cancelled</option>
+                    <option value="pending">Pending</option>
+                    <!-- ✅ FIXED: "approved" instead of "fulfilled" -->
+                    <option value="approved">Approved</option>
+                    <option value="cancelled">Cancelled</option>
                 </select>
                 <button class="btn-reset" onclick="resetFilters()">Reset</button>
             </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Patient Name</th>
+                        <th>Blood Group</th>
+                        <th>Hospital</th>
+                        <th>Contact Number</th>
+                        <th>Urgency</th>
+                        <th>Notes</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    <%
+                        if (loadError != null) {
+                    %>
+                    <tr><td colspan="10" class="empty">⚠️ Error loading requests: <%= loadError %></td></tr>
+                    <%
+                    } else if (requests.isEmpty()) {
+                    %>
+                    <tr><td colspan="10" class="empty">📭 No blood requests found.</td></tr>
+                    <%
+                    } else {
+                        boolean anyVisible = false;
+                        for (BloodRequest br : requests) {
 
-            <table>
-                <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Patient Name</th>
-                    <th>Blood Group</th>
-                    <th>Hospital</th>
-                    <th>Urgency</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <tbody id="tableBody">
-                <%
-                    try {
-                        BloodRequestDAO dao = new BloodRequestDAO();
-                        List<BloodRequest> requests = dao.getAllRequests();
-                        if (requests != null && !requests.isEmpty()) {
-                            for (BloodRequest br : requests) {
-                                String uClass = br.isCritical() ? "critical" : (br.getUrgencyLevel().equals("Urgent") ? "pending" : "fulfilled");
-                                String sClass = br.getStatus().equals("Fulfilled") ? "fulfilled" : (br.getStatus().equals("Cancelled") ? "cancelled" : "pending");
-                %>
-                <tr>
-                    <td>#REQ-<%= String.format("%03d", br.getRequestId()) %></td>
-                    <td><strong><%= br.getPatientName() %></strong></td>
-                    <td><span class="badge blood"><%= br.getBloodGroup() %></span></td>
-                    <td><%= br.getHospitalName() %></td>
-                    <td><span class="badge <%= uClass %>"><%= br.getUrgencyLevel() %></span></td>
-                    <td><%= br.getRequestDate() %></td>
-                    <td><span class="badge <%= sClass %>"><%= br.getStatus() %></span></td>
-                </tr>
-                <%
-                    }
-                } else {
-                %>
-                <!-- Sample data when DB is empty -->
-                <tr>
-                    <td>#REQ-001</td><td><strong>Ram Bahadur</strong></td>
-                    <td><span class="badge blood">O+</span></td>
-                    <td>Durga Mata Hospital</td>
-                    <td><span class="badge critical">Critical</span></td>
-                    <td>2024-11-10</td>
-                    <td><span class="badge fulfilled">Fulfilled</span></td>
-                </tr>
-                <tr>
-                    <td>#REQ-002</td><td><strong>Sita Khadka</strong></td>
-                    <td><span class="badge blood">B+</span></td>
-                    <td>Bir Hospital</td>
-                    <td><span class="badge pending">Urgent</span></td>
-                    <td>2024-11-12</td>
-                    <td><span class="badge pending">Pending</span></td>
-                </tr>
-                <tr>
-                    <td>#REQ-003</td><td><strong>Hari Bahadur</strong></td>
-                    <td><span class="badge blood">A-</span></td>
-                    <td>Patan Hospital</td>
-                    <td><span class="badge fulfilled">Normal</span></td>
-                    <td>2024-11-13</td>
-                    <td><span class="badge fulfilled">Fulfilled</span></td>
-                </tr>
-                <tr>
-                    <td>#REQ-004</td><td><strong>Gita Devi</strong></td>
-                    <td><span class="badge blood">AB-</span></td>
-                    <td>Norvic Hospital</td>
-                    <td><span class="badge critical">Critical</span></td>
-                    <td>2024-11-14</td>
-                    <td><span class="badge pending">Pending</span></td>
-                </tr>
-                <tr>
-                    <td>#REQ-005</td><td><strong>Sherpa Tenzing</strong></td>
-                    <td><span class="badge blood">O-</span></td>
-                    <td>Teaching Hospital</td>
-                    <td><span class="badge pending">Urgent</span></td>
-                    <td>2024-11-15</td>
-                    <td><span class="badge cancelled">Cancelled</span></td>
-                </tr>
-                <%
-                    }
-                } catch(Exception e) { %>
-                <tr><td colspan="7" class="empty">⚠️ Error loading requests: <%= e.getMessage() %></td></tr>
-                <% } %>
-                </tbody>
-            </table>
+                            if (br.getPatientName() == null || br.getPatientName().trim().isEmpty()) continue;
+                            anyVisible = true;
+
+                            // Urgency
+                            String urgency = br.getUrgencyLevel();
+                            if (urgency == null || urgency.trim().isEmpty()) urgency = "Normal";
+                            String uClass;
+                            if (urgency.equalsIgnoreCase("Critical"))    uClass = "critical";
+                            else if (urgency.equalsIgnoreCase("Urgent")) uClass = "urgent";
+                            else                                          uClass = "normal";
+
+                            // ✅ FIXED: status badge class uses "approved" not "fulfilled"
+                            String status = br.getStatus() != null ? br.getStatus() : "pending";
+                            String sClass;
+                            if (status.equalsIgnoreCase("approved"))       sClass = "approved";
+                            else if (status.equalsIgnoreCase("cancelled")) sClass = "cancelled";
+                            else                                            sClass = "pending";
+
+                            // Contact number
+                            String contact = br.getContactNumber();
+                            if (contact == null || contact.trim().isEmpty()) contact = "—";
+
+                            // Notes
+                            String notes = br.getAdditionalNotes();
+                            boolean hasNotes = (notes != null && !notes.trim().isEmpty());
+
+                            // ✅ FIXED: isPending checks "pending" (matches DB lowercase)
+                            boolean isPending = status.equalsIgnoreCase("pending");
+                    %>
+                    <tr>
+                        <td>#REQ-<%= String.format("%03d", br.getRequestId()) %></td>
+                        <td><strong><%= br.getPatientName() %></strong></td>
+                        <td><span class="badge blood"><%= br.getBloodGroup() %></span></td>
+                        <td><%= br.getHospitalName() %></td>
+                        <td><span class="contact-num"><%= contact %></span></td>
+                        <td><span class="badge <%= uClass %>"><%= urgency %></span></td>
+                        <td>
+                            <% if (hasNotes) { %>
+                            <span class="notes-cell" title="<%= notes %>"><%= notes %></span>
+                            <% } else { %>
+                            <span class="notes-cell empty-note">No notes</span>
+                            <% } %>
+                        </td>
+                        <td><%= br.getRequestDate() %></td>
+                        <!-- ✅ FIXED: displays actual status from DB (approved/pending/cancelled) -->
+                        <td><span class="badge <%= sClass %>"><%= status %></span></td>
+                        <td>
+                            <% if (isPending) { %>
+                            <div class="action-btns">
+                                <a href="?actionType=approve&actionId=<%= br.getRequestId() %>"
+                                   class="btn-approve"
+                                   onclick="return confirm('Approve this request?')">✅ Approve</a>
+                                <a href="?actionType=reject&actionId=<%= br.getRequestId() %>"
+                                   class="btn-reject"
+                                   onclick="return confirm('Reject this request?')">❌ Reject</a>
+                            </div>
+                            <% } else { %>
+                            <span class="btn-disabled">— Done —</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <%
+                        }
+                        if (!anyVisible) {
+                    %>
+                    <tr><td colspan="10" class="empty">📭 No valid blood requests found.</td></tr>
+                    <%  } %>
+                    <%  } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-    </div>
-</div>
+    </div><!-- /content -->
+</div><!-- /main -->
 
 <script>
     function filterTable() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const bloodGroup = document.getElementById('filterBloodGroup').value.toLowerCase();
-        const status = document.getElementById('filterStatus').value.toLowerCase();
+        const search    = document.getElementById('searchInput').value.toLowerCase();
+        const bloodGrp  = document.getElementById('filterBloodGroup').value.toLowerCase();
+        const urgency   = document.getElementById('filterUrgency').value.toLowerCase();
+        const status    = document.getElementById('filterStatus').value.toLowerCase();
+
         document.querySelectorAll('#tableBody tr').forEach(row => {
             const text = row.innerText.toLowerCase();
-            row.style.display = (text.includes(search) && (bloodGroup === '' || text.includes(bloodGroup)) && (status === '' || text.includes(status))) ? '' : 'none';
+            const matchSearch  = text.includes(search);
+            const matchBlood   = bloodGrp === '' || text.includes(bloodGrp);
+            const matchUrgency = urgency  === '' || text.includes(urgency);
+            const matchStatus  = status   === '' || text.includes(status);
+            row.style.display  = (matchSearch && matchBlood && matchUrgency && matchStatus) ? '' : 'none';
         });
     }
+
     function resetFilters() {
-        document.getElementById('searchInput').value = '';
+        document.getElementById('searchInput').value      = '';
         document.getElementById('filterBloodGroup').value = '';
-        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterUrgency').value    = '';
+        document.getElementById('filterStatus').value     = '';
         filterTable();
     }
 </script>
-
 </body>
 </html>
