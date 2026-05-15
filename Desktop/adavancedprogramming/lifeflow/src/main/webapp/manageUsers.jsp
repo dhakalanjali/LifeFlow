@@ -127,6 +127,9 @@
         <a href="${pageContext.request.contextPath}/bloodRequest">
             <span class="icon">🔍</span> Search Blood
         </a>
+        <a href="${pageContext.request.contextPath}/admin/recorddonation">
+            <span class="icon">🩸</span> Record Donation
+        </a>
         <a href="${pageContext.request.contextPath}/reports.jsp">
             <span class="icon">📊</span> Reports
         </a>

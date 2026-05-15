@@ -114,6 +114,7 @@
         <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
         <a href="${pageContext.request.contextPath}/bloodRequest"><span class="icon">🔍</span> Search Blood</a>
         <a href="${pageContext.request.contextPath}/reports.jsp"><span class="icon">📊</span> Reports</a>
+        <a href="${pageContext.request.contextPath}/admin/recorddonation"><span class="icon">🩸</span> Record Donation</a>
         <a href="${pageContext.request.contextPath}/about.jsp"><span class="icon">ℹ️</span> About</a>
         <a href="${pageContext.request.contextPath}/contact.jsp"><span class="icon">📞</span> Contact</a>
     </nav>
