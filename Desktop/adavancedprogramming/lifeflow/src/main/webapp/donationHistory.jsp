@@ -32,7 +32,7 @@
         .navbar-links { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
         .navbar-links a { color: white; text-decoration: none; font-size: 0.9rem; }
         .navbar-links a:hover { text-decoration: underline; }
-        .btn-logout { background: white; color: #C0392B; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
+        .btn-logout { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.35); padding: 6px 14px; border-radius: 8px; font-weight: 500; font-size: 0.85rem; }
 
         .container { padding: 30px 20px; max-width: 1000px; margin: 0 auto; }
         h2 { color: #C0392B; margin-bottom: 20px; }
