@@ -7,11 +7,15 @@
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
-    String userName = (String) session.getAttribute("userName");
-    String userEmail = (String) session.getAttribute("userEmail");
-    String userPhone = (String) session.getAttribute("userPhone");
+    String userName      = (String) session.getAttribute("userName");
+    String userEmail     = (String) session.getAttribute("userEmail");
+    String userPhone     = (String) session.getAttribute("userPhone");
     String userBloodType = (String) session.getAttribute("userBloodType");
-    Integer userId = (Integer) session.getAttribute("userId");
+
+    String successMsg = (String) session.getAttribute("success");
+    String errorMsg   = (String) session.getAttribute("error");
+    if (successMsg != null) session.removeAttribute("success");
+    if (errorMsg != null)   session.removeAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,81 +23,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - LifeFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --red: #C0392B; --red-dark: #96281B; --red-light: #fde8e8;
+            --red-border: #f5b7b1; --bg: #f4f4f0; --card: #ffffff;
+            --text: #1a1a1a; --muted: #6b7280; --border: rgba(0,0,0,0.08);
+            --radius: 14px; --radius-sm: 8px;
+        }
+        body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-        .navbar {
-            background: #C0392B;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .navbar-brand { font-size: 1.4rem; font-weight: bold; color: white; text-decoration: none; }
-        .navbar-links { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-        .navbar-links a { color: white; text-decoration: none; font-size: 0.9rem; }
-        .navbar-links a:hover { text-decoration: underline; }
-        .btn-logout { background: white; color: #C0392B; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
+        /* NAVBAR */
+        .navbar { background: var(--red); padding: 0 2.5rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(192,57,43,0.25); }
+        .navbar-brand { color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
+        .navbar-links { display: flex; align-items: center; gap: 2px; }
+        .navbar-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s; }
+        .navbar-links a:hover, .navbar-links a.active { background: rgba(255,255,255,0.15); color: #fff; }
+        .btn-logout { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.35) !important; margin-left: 8px; font-weight: 500; border-radius: var(--radius-sm); }
+        .btn-logout:hover { background: rgba(255,255,255,0.28) !important; }
 
-        .container { padding: 30px 20px; max-width: 650px; margin: 0 auto; }
-        h2 { color: #C0392B; margin-bottom: 20px; }
+        /* CONTAINER */
+        .container { width: 100%; padding: 2rem 2.5rem; display: flex; justify-content: center; }
 
-        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; }
-        .alert-success { background: #d4edda; color: #155724; }
-        .alert-error { background: #f8d7da; color: #721c24; }
+        /* PROFILE CARD */
+        .profile-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 2rem; width: 100%; max-width: 600px; }
 
-        .profile-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-weight: bold; color: #555; margin-bottom: 6px; font-size: 0.9rem; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 12px;
-            border: 1.5px solid #ddd; border-radius: 6px;
-            font-size: 0.95rem; font-family: Arial, sans-serif;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none; border-color: #C0392B;
-        }
-        .form-error { color: #C0392B; font-size: 0.8rem; margin-top: 4px; display: none; }
-        .btn-submit {
-            width: 100%; padding: 12px;
-            background: #C0392B; color: white;
-            border: none; border-radius: 6px;
-            font-size: 1rem; font-weight: bold;
-            cursor: pointer; margin-top: 10px;
-        }
-        .btn-submit:hover { background: #a93226; }
+        .profile-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
+        .avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--red-light); border: 2px solid var(--red-border); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; color: var(--red); flex-shrink: 0; }
+        .profile-header-info h2 { font-size: 18px; font-weight: 600; }
+        .profile-header-info p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+        .blood-badge { display: inline-flex; align-items: center; background: var(--red-light); color: var(--red-dark); font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--red-border); margin-top: 5px; }
+
+        /* FORM */
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text); background: #fafafa; font-family: inherit; outline: none; transition: border-color 0.15s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--red); background: #fff; }
+        .readonly-field { background: #f0f0f0 !important; color: var(--muted) !important; cursor: not-allowed; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-error { color: var(--red); font-size: 11px; margin-top: 4px; display: none; }
+        .btn-submit { width: 100%; background: var(--red); color: #fff; border: none; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; margin-top: 0.5rem; }
+        .btn-submit:hover { background: var(--red-dark); }
+
+        /* ALERTS */
+        .alert { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 1.25rem; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 0.5px solid #a5d6a7; }
+        .alert-error   { background: var(--red-light); color: var(--red-dark); border: 0.5px solid var(--red-border); }
 
         @media (max-width: 768px) {
-            .navbar { padding: 12px 15px; }
-            .navbar-links { gap: 8px; }
-            .navbar-links a { font-size: 0.8rem; }
-            .container { padding: 15px; }
-        }
-        @media (max-width: 480px) {
+            .navbar { padding: 0 1rem; }
             .navbar-links { display: none; }
+            .container { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <a href="${pageContext.request.contextPath}/index.jsp" class="navbar-brand">❤️ LifeFlow</a>
+    <a href="${pageContext.request.contextPath}/userDashboard.jsp" class="navbar-brand">&#10084; LifeFlow</a>
     <div class="navbar-links">
-        <a href="${pageContext.request.contextPath}/index.jsp">Home</a>
+        <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
         <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a>
         <a href="${pageContext.request.contextPath}/requestBlood.jsp">Request Blood</a>
         <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
-        <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
+        <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
+        <a href="${pageContext.request.contextPath}/profile.jsp" class="active">My Profile</a>
         <a href="${pageContext.request.contextPath}/about.jsp">About</a>
         <a href="${pageContext.request.contextPath}/contact.jsp">Contact</a>
         <a href="${pageContext.request.contextPath}/logout" class="btn-logout">Logout</a>
@@ -101,42 +98,58 @@
 </nav>
 
 <div class="container">
-    <h2>👤 My Profile</h2>
-
-    <% if (request.getAttribute("success") != null) { %>
-    <div class="alert alert-success"><%= request.getAttribute("success") %></div>
-    <% } %>
-    <% if (session.getAttribute("success") != null) { %>
-    <div class="alert alert-success"><%= session.getAttribute("success") %></div>
-    <% session.removeAttribute("success"); %>
-    <% } %>
-    <% if (request.getAttribute("error") != null) { %>
-    <div class="alert alert-error"><%= request.getAttribute("error") %></div>
-    <% } %>
-
     <div class="profile-card">
-        <form action="${pageContext.request.contextPath}/updateProfile" method="post"
-              onsubmit="return validateProfile()">
-            <input type="hidden" name="userId" value="<%= userId != null ? userId : "" %>">
+
+        <!-- HEADER -->
+        <div class="profile-header">
+            <%
+                String initials = "U";
+                if (userName != null && !userName.trim().isEmpty()) {
+                    String[] parts = userName.trim().split("\\s+");
+                    initials = "";
+                    for (String p : parts) if (!p.isEmpty()) initials += p.charAt(0);
+                    initials = initials.toUpperCase();
+                    if (initials.length() > 2) initials = initials.substring(0, 2);
+                }
+            %>
+            <div class="avatar"><%= initials %></div>
+            <div class="profile-header-info">
+                <h2><%= userName != null ? userName : "User" %></h2>
+                <p><%= userEmail != null ? userEmail : "" %></p>
+                <span class="blood-badge">&#9679; Blood type: <strong><%= userBloodType != null ? userBloodType : "N/A" %></strong></span>
+            </div>
+        </div>
+
+        <!-- ALERTS -->
+        <% if (successMsg != null) { %>
+        <div class="alert alert-success">&#10004; <%= successMsg %></div>
+        <% } %>
+        <% if (errorMsg != null) { %>
+        <div class="alert alert-error">&#9888; <%= errorMsg %></div>
+        <% } %>
+
+        <!-- FORM -->
+        <form action="${pageContext.request.contextPath}/updateProfile" method="post" onsubmit="return validateProfile()">
 
             <div class="form-group">
                 <label>Full Name *</label>
                 <input type="text" name="fullName" id="fullName"
-                       value="<%= userName != null ? userName : "" %>" required>
+                       value="<%= userName != null ? userName : "" %>" required />
                 <div class="form-error" id="nameError">Name must contain letters only!</div>
             </div>
 
-            <div class="form-group">
-                <label>Email Address *</label>
-                <input type="email" name="email"
-                       value="<%= userEmail != null ? userEmail : "" %>" required>
-            </div>
-
-            <div class="form-group">
-                <label>Phone Number *</label>
-                <input type="text" name="phone" id="phone"
-                       value="<%= userPhone != null ? userPhone : "" %>" required>
-                <div class="form-error" id="phoneError">Phone must be 10 digits!</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" value="<%= userEmail != null ? userEmail : "" %>"
+                           class="readonly-field" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="text" name="phone" id="phone"
+                           value="<%= userPhone != null ? userPhone : "" %>" required />
+                    <div class="form-error" id="phoneError">Phone must be 10 digits!</div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -144,9 +157,7 @@
                 <select name="bloodType">
                     <% String[] groups = {"A+","A-","B+","B-","AB+","AB-","O+","O-"};
                         for (String g : groups) { %>
-                    <option value="<%= g %>"
-                            <%= g.equals(userBloodType) ? "selected" : "" %>><%= g %>
-                    </option>
+                    <option value="<%= g %>" <%= g.equals(userBloodType) ? "selected" : "" %>><%= g %></option>
                     <% } %>
                 </select>
             </div>
@@ -154,11 +165,11 @@
             <div class="form-group">
                 <label>New Password (leave blank to keep current)</label>
                 <input type="password" name="newPassword" id="newPassword"
-                       placeholder="Min 8 chars, uppercase, lowercase, number, special char">
-                <div class="form-error" id="passError">Password must be at least 8 characters with uppercase, lowercase, number and special character!</div>
+                       placeholder="Min 8 chars, uppercase, lowercase, number, special char" />
+                <div class="form-error" id="passError">Password must be 8+ chars with uppercase, lowercase, number & special character!</div>
             </div>
 
-            <button type="submit" class="btn-submit">💾 Update Profile</button>
+            <button type="submit" class="btn-submit">&#128190; Update Profile</button>
         </form>
     </div>
 </div>
@@ -167,39 +178,25 @@
     function validateProfile() {
         let valid = true;
 
-        // Name validation - letters only
         const name = document.getElementById('fullName').value.trim();
         const nameError = document.getElementById('nameError');
         if (!/^[A-Za-z ]+$/.test(name)) {
-            nameError.style.display = 'block';
-            valid = false;
-        } else {
-            nameError.style.display = 'none';
-        }
+            nameError.style.display = 'block'; valid = false;
+        } else { nameError.style.display = 'none'; }
 
-        // Phone validation - 10 digits
         const phone = document.getElementById('phone').value.trim();
         const phoneError = document.getElementById('phoneError');
         if (!/^\d{10}$/.test(phone)) {
-            phoneError.style.display = 'block';
-            valid = false;
-        } else {
-            phoneError.style.display = 'none';
-        }
+            phoneError.style.display = 'block'; valid = false;
+        } else { phoneError.style.display = 'none'; }
 
-        // Password validation (only if filled)
         const pass = document.getElementById('newPassword').value;
         const passError = document.getElementById('passError');
         if (pass.length > 0) {
             if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(pass)) {
-                passError.style.display = 'block';
-                valid = false;
-            } else {
-                passError.style.display = 'none';
-            }
-        } else {
-            passError.style.display = 'none';
-        }
+                passError.style.display = 'block'; valid = false;
+            } else { passError.style.display = 'none'; }
+        } else { passError.style.display = 'none'; }
 
         return valid;
     }
