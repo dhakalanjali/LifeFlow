@@ -16,12 +16,6 @@ public class DonorDAO {
         catch (SQLException e) {}
         try { d.setUserId(rs.getInt("user_id")); }
         catch (SQLException e) {}
-        try { d.setBloodType(rs.getString("blood_type")); }
-        catch (SQLException e) {}
-        try { d.setAddress(rs.getString("address")); }
-        catch (SQLException e) {}
-        try { d.setDateOfBirth(rs.getString("date_of_birth")); }
-        catch (SQLException e) {}
         try { d.setLastDonationDate(rs.getString("last_donation_date")); }
         catch (SQLException e) {}
         try { d.setIsEligible(rs.getString("is_eligible")); }
@@ -33,7 +27,7 @@ public class DonorDAO {
     public List<Donor> getAllDonors() {
         List<Donor> list = new ArrayList<>();
         try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT * FROM donors");
+             PreparedStatement ps = c.prepareStatement("SELECT * FROM donor");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(buildDonor(rs));
         } catch (SQLException e) {
@@ -42,12 +36,12 @@ public class DonorDAO {
         return list;
     }
 
-    // Get donors by blood group
+    // Get donors by blood group (joins users table since blood_type is in users)
     public List<Donor> getDonorsByBloodGroup(String bg) {
         List<Donor> list = new ArrayList<>();
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT d.* FROM donors d " +
+                     "SELECT d.* FROM donor d " +
                              "JOIN users u ON d.user_id = u.user_id " +
                              "WHERE u.blood_type = ?")) {
             ps.setString(1, bg);
@@ -63,7 +57,7 @@ public class DonorDAO {
     public int getTotalDonorCount() {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT COUNT(*) FROM donors");
+                     "SELECT COUNT(*) FROM donor");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
@@ -76,7 +70,7 @@ public class DonorDAO {
     public Donor getDonorByUserId(int userId) {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT * FROM donors WHERE user_id = ?")) {
+                     "SELECT * FROM donor WHERE user_id = ?")) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return buildDonor(rs);
@@ -88,15 +82,12 @@ public class DonorDAO {
 
     // Save new donor
     public boolean saveDonor(Donor donor) {
-        String sql = "INSERT INTO donors (user_id, blood_type, address, date_of_birth, last_donation_date, is_eligible) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO donor (user_id, last_donation_date, is_eligible) VALUES (?, ?, ?)";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, donor.getUserId());
-            ps.setString(2, donor.getBloodType());
-            ps.setString(3, donor.getAddress());
-            ps.setString(4, donor.getDateOfBirth());
-            ps.setString(5, donor.getLastDonationDate());
-            ps.setString(6, donor.getIsEligible());
+            ps.setString(2, donor.getLastDonationDate());
+            ps.setString(3, donor.getIsEligible());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("saveDonor: " + e.getMessage());
@@ -108,7 +99,7 @@ public class DonorDAO {
     public boolean deleteDonor(int donorId) {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "DELETE FROM donors WHERE donor_id = ?")) {
+                     "DELETE FROM donor WHERE donor_id = ?")) {
             ps.setInt(1, donorId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
