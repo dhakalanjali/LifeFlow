@@ -318,7 +318,7 @@
             <div class="quick-icon">&#128203;</div>
             <span class="quick-label">My Requests</span>
         </a>
-        <a href="${pageContext.request.contextPath}/donationCamps.jsp" class="quick-card">
+        <a href="${pageContext.request.contextPath}/donationCamp.jsp" class="quick-card">
             <div class="quick-icon">&#127371;</div>
             <span class="quick-label">Donation Camps</span>
         </a>
