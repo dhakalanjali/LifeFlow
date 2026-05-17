@@ -31,7 +31,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-        /* ── SIDEBAR ── */
+        /* SIDEBAR */
         .sidebar { width: 240px; background: var(--red-dark); min-height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 10px; }
         .sidebar-logo .logo-icon { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
@@ -46,27 +46,35 @@
         .sidebar-footer a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.6); text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
         .sidebar-footer a:hover { background: rgba(255,255,255,0.15); color: white; }
 
-        /* ── MAIN ── */
+        /* MAIN */
         .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* ── TOPBAR ── */
+        /* TOPBAR */
         .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
         .topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
         .topbar-left span { font-size: 12px; color: var(--text-muted); }
-        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
+        .btn-topbar-logout {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; background: var(--red); color: white;
+            border-radius: 8px; font-size: 13px; font-weight: 700;
+            text-decoration: none; border: 2px solid var(--red-dark);
+            transition: background 0.2s;
+        }
+        .btn-topbar-logout:hover { background: var(--red-dark); }
 
-        /* ── CONTENT ── */
+        /* CONTENT */
         .content { padding: 28px; flex: 1; }
         .section-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-        /* ── ALERTS ── */
+        /* ALERTS */
         .msg-s { background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #28a745; font-size: 13px; font-weight: 600; }
         .msg-e { background: #f8d7da; color: #721c24; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #dc3545; font-size: 13px; font-weight: 600; }
 
-        /* ── TABLE ── */
+        /* TABLE */
         .table-wrap { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 28px; }
         .table-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fdecea; }
         .table-header h3 { font-size: 15px; font-weight: 800; color: var(--red-dark); }
@@ -77,13 +85,13 @@
         tbody tr:hover td { background: #fdf8f8; }
         .empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
 
-        /* ── BADGES ── */
+        /* BADGES */
         .badge { display: inline-block; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
         .badge.pending  { background: #fef9e7; color: #d68910; }
         .badge.approved { background: #eafaf1; color: #1e8449; }
         .badge.rejected { background: #fdecea; color: var(--red); }
 
-        /* ── ACTION BUTTONS ── */
+        /* ACTION BUTTONS */
         .tbl-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 6px; color: white; font-size: 11px; font-weight: 700; font-family: 'Nunito', sans-serif; text-decoration: none; border: none; cursor: pointer; transition: opacity 0.2s; }
         .tbl-btn:hover { opacity: 0.85; }
         .tbl-btn.approve { background: var(--green); }
@@ -93,7 +101,6 @@
         .tbl-btn.delete  { background: #95a5a6; }
         .done-label { color: #bbb; font-size: 12px; font-weight: 600; }
 
-        /* Responsive */
         @media(max-width: 768px) {
             .sidebar { width: 0; overflow: hidden; }
             .main { margin-left: 0; }
@@ -104,7 +111,7 @@
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-logo">
         <div class="logo-icon">🩸</div>
@@ -118,10 +125,10 @@
         <a href="${pageContext.request.contextPath}/admin/manageUsers" class="active">
             <span class="icon">👥</span> Manage Users
         </a>
-        <a href="${pageContext.request.contextPath}/manageCamps.jsp">
+        <a href="${pageContext.request.contextPath}/admin/manageCamps">
             <span class="icon">⛺</span> Manage Camps
         </a>
-        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp">
+        <a href="${pageContext.request.contextPath}/admin/bloodStock">
             <span class="icon">🩸</span> Blood Stock
         </a>
         <a href="${pageContext.request.contextPath}/bloodRequest">
@@ -130,7 +137,7 @@
         <a href="${pageContext.request.contextPath}/admin/recorddonation">
             <span class="icon">🩸</span> Record Donation
         </a>
-        <a href="${pageContext.request.contextPath}/reports.jsp">
+        <a href="${pageContext.request.contextPath}/admin/reports">
             <span class="icon">📊</span> Reports
         </a>
         <a href="${pageContext.request.contextPath}/about.jsp">
@@ -147,7 +154,7 @@
     </div>
 </aside>
 
-<!-- ── MAIN ── -->
+<!-- MAIN -->
 <div class="main">
 
     <header class="topbar">
@@ -160,6 +167,9 @@
                 <div class="admin-avatar">A</div>
                 <span class="admin-name">Admin</span>
             </div>
+            <a href="${pageContext.request.contextPath}/logout" class="btn-topbar-logout">
+                🚪 Logout
+            </a>
         </div>
     </header>
 

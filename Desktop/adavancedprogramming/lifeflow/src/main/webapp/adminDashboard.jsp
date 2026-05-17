@@ -44,13 +44,24 @@
         .sidebar-footer a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.6); text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
         .sidebar-footer a:hover { background: rgba(255,255,255,0.15); color: white; }
         .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* TOPBAR */
         .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
         .topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
         .topbar-left span { font-size: 12px; color: var(--text-muted); }
-        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
+        .btn-topbar-logout {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; background: var(--red); color: white;
+            border-radius: 8px; font-size: 13px; font-weight: 700;
+            text-decoration: none; border: 2px solid var(--red-dark);
+            transition: background 0.2s;
+        }
+        .btn-topbar-logout:hover { background: var(--red-dark); }
+
         .content { padding: 28px; flex: 1; }
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
         .stat-card { background: var(--white); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; transition: transform 0.2s; border-top: 4px solid var(--red); text-decoration: none; color: var(--text); }
@@ -176,6 +187,9 @@
                 <div class="admin-avatar">A</div>
                 <span class="admin-name">Admin</span>
             </div>
+            <a href="${pageContext.request.contextPath}/logout" class="btn-topbar-logout">
+                🚪 Logout
+            </a>
         </div>
     </header>
 
@@ -369,76 +383,79 @@
     </div>
 </div>
 
-<!-- CHARTS JS -->
 <script>
-    new Chart(document.getElementById('donutChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Approved', 'Pending', 'Donors'],
-            datasets: [{
-                data: [${approvedUsers}, ${pendingUsers}, ${totalDonors}],
-                backgroundColor: ['#27ae60', '#e67e22', '#c0392b'],
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700', size: 11 }, padding: 10 } } },
-            cutout: '68%'
-        }
-    });
+    document.addEventListener('DOMContentLoaded', function () {
 
-    new Chart(document.getElementById('bloodChart'), {
-        type: 'bar',
-        data: {
-            labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
-            datasets: [{
-                label: 'Donors',
-                data: [${countAPos}, ${countANeg}, ${countBPos}, ${countBNeg}, ${countOPos}, ${countONeg}, ${countABPos}, ${countABNeg}],
-                backgroundColor: 'rgba(192,57,43,0.8)',
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { family: 'Nunito', size: 10 } } },
-                x: { grid: { display: false }, ticks: { font: { family: 'Nunito', size: 10 } } }
+        new Chart(document.getElementById('donutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Pending', 'Donors'],
+                datasets: [{
+                    data: [${approvedUsers}, ${pendingUsers}, ${totalDonors}],
+                    backgroundColor: ['#27ae60', '#e67e22', '#c0392b'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { font: { family: 'Nunito', weight: '700', size: 11 }, padding: 10 } } },
+                cutout: '68%'
             }
-        }
-    });
+        });
 
-    new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'New Users',
-                data: [3, 5, 4, 8, 6, 10, 12, 9, 7, 11, 8, ${totalUsers}],
-                borderColor: '#c0392b',
-                backgroundColor: 'rgba(192,57,43,0.08)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#c0392b',
-                pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { family: 'Nunito', size: 10 } } },
-                x: { grid: { display: false }, ticks: { font: { family: 'Nunito', size: 10 } } }
+        new Chart(document.getElementById('bloodChart'), {
+            type: 'bar',
+            data: {
+                labels: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
+                datasets: [{
+                    label: 'Donors',
+                    data: [${countAPos}, ${countANeg}, ${countBPos}, ${countBNeg}, ${countOPos}, ${countONeg}, ${countABPos}, ${countABNeg}],
+                    backgroundColor: 'rgba(192,57,43,0.8)',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { family: 'Nunito', size: 10 } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Nunito', size: 10 } } }
+                }
             }
-        }
-    });
+        });
+
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'New Users',
+                    data: [3, 5, 4, 8, 6, 10, 12, 9, 7, 11, 8, ${totalUsers}],
+                    borderColor: '#c0392b',
+                    backgroundColor: 'rgba(192,57,43,0.08)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#c0392b',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { family: 'Nunito', size: 10 } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Nunito', size: 10 } } }
+                }
+            }
+        });
+
+    }); // end DOMContentLoaded
 </script>
 
 </body>
