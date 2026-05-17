@@ -135,16 +135,19 @@
         <a href="${pageContext.request.contextPath}/admin/manageUsers">
             <span class="icon">👥</span> Manage Users
         </a>
-        <a href="${pageContext.request.contextPath}/manageCamps.jsp">
+        <a href="${pageContext.request.contextPath}/admin/manageCamps">
             <span class="icon">⛺</span> Manage Camps
         </a>
-        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp">
+        <a href="${pageContext.request.contextPath}/admin/bloodStock">
             <span class="icon">🩸</span> Blood Stock
         </a>
         <a href="${pageContext.request.contextPath}/bloodRequest">
             <span class="icon">🔍</span> Search Blood
         </a>
-        <a href="${pageContext.request.contextPath}/reports.jsp">
+        <a href="${pageContext.request.contextPath}/admin/recorddonation">
+            <span class="icon">🩸</span> Record Donation
+        </a>
+        <a href="${pageContext.request.contextPath}/admin/reports">
             <span class="icon">📊</span> Reports
         </a>
         <a href="${pageContext.request.contextPath}/about.jsp">

@@ -2,8 +2,10 @@ package com.lifeflow.lifeflow.servlet;
 
 import com.lifeflow.lifeflow.dao.DonationCampDAO;
 import com.lifeflow.lifeflow.dao.DonationRecordDAO;
+import com.lifeflow.lifeflow.dao.DonorDAO;
 import com.lifeflow.lifeflow.model.DonationCamp;
 import com.lifeflow.lifeflow.model.DonationRecord;
+import com.lifeflow.lifeflow.model.Donor;
 import com.lifeflow.lifeflow.model.User;
 
 import jakarta.servlet.ServletException;
@@ -22,28 +24,35 @@ public class DonateBloodServlet extends HttpServlet {
 
     private final DonationRecordDAO donationRecordDAO = new DonationRecordDAO();
     private final DonationCampDAO   donationCampDAO   = new DonationCampDAO();
+    private final DonorDAO          donorDAO          = new DonorDAO();
 
     // ─────────────────────────────────────────────────────
-    // doGet — show the donation form
+    // doGet — check donor status, then show page
     // ─────────────────────────────────────────────────────
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Check session — user must be logged in
+        // 1. Check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // 2. Load camps for the dropdown
+        User loggedInUser = (User) session.getAttribute("user");
+
+        // 2. Check if user is a registered donor
+        Donor donor = donorDAO.getDonorByUserId(loggedInUser.getUserId());
+
+        // 3. Load camps
         List<DonationCamp> camps = donationCampDAO.getAllCamps();
+
+        // 4. Pass donor (null if not registered yet) and camps to JSP
+        request.setAttribute("donor", donor);
         request.setAttribute("camps", camps);
 
-        // 3. Forward to JSP — file is at webapp/donateBlood.jsp
-        request.getRequestDispatcher("/donateBlood.jsp")
-                .forward(request, response);
+        request.getRequestDispatcher("/donateBlood.jsp").forward(request, response);
     }
 
     // ─────────────────────────────────────────────────────
@@ -74,11 +83,12 @@ public class DonateBloodServlet extends HttpServlet {
                 unitStr == null || unitStr.trim().isEmpty() ||
                 donationDateStr == null || donationDateStr.trim().isEmpty()) {
 
+            Donor donor = donorDAO.getDonorByUserId(userId);
             List<DonationCamp> camps = donationCampDAO.getAllCamps();
+            request.setAttribute("donor", donor);
             request.setAttribute("camps", camps);
             request.setAttribute("error", "Please fill in all required fields.");
-            request.getRequestDispatcher("/donateBlood.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("/donateBlood.jsp").forward(request, response);
             return;
         }
 
@@ -90,20 +100,21 @@ public class DonateBloodServlet extends HttpServlet {
                 throw new NumberFormatException("out of range");
             }
         } catch (NumberFormatException e) {
+            Donor donor = donorDAO.getDonorByUserId(userId);
             List<DonationCamp> camps = donationCampDAO.getAllCamps();
+            request.setAttribute("donor", donor);
             request.setAttribute("camps", camps);
             request.setAttribute("error", "Units donated must be between 1 and 5.");
-            request.getRequestDispatcher("/donateBlood.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("/donateBlood.jsp").forward(request, response);
             return;
         }
 
         // 5. Build DonationRecord object
         DonationRecord record = new DonationRecord();
-        record.setDonorId(userId);                                 // → user_id in DB
-        record.setBloodGroup(bloodType.trim());                    // → blood_type in DB
-        record.setQuantity(unitsDonated);                          // → units_donated in DB
-        record.setDonationDate(LocalDate.parse(donationDateStr));  // → donation_date in DB
+        record.setDonorId(userId);
+        record.setBloodGroup(bloodType.trim());
+        record.setQuantity(unitsDonated);
+        record.setDonationDate(LocalDate.parse(donationDateStr));
 
         // camp_id is optional — 0 means walk-in, DAO inserts NULL
         if (campIdStr != null && !campIdStr.trim().isEmpty() && !campIdStr.equals("0")) {
@@ -120,15 +131,14 @@ public class DonateBloodServlet extends HttpServlet {
         boolean success = donationRecordDAO.insertDonation(record);
 
         if (success) {
-            // 7a. Success → redirect to success page
             response.sendRedirect(request.getContextPath() + "/donationSuccess.jsp");
         } else {
-            // 7b. DB error → reload form with error message
+            Donor donor = donorDAO.getDonorByUserId(userId);
             List<DonationCamp> camps = donationCampDAO.getAllCamps();
+            request.setAttribute("donor", donor);
             request.setAttribute("camps", camps);
             request.setAttribute("error", "Database error. Please try again.");
-            request.getRequestDispatcher("/donateBlood.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher("/donateBlood.jsp").forward(request, response);
         }
     }
 }

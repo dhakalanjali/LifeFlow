@@ -159,6 +159,9 @@
         <a href="${pageContext.request.contextPath}/reports.jsp">
             <span class="icon">📊</span> Reports
         </a>
+        <a href="${pageContext.request.contextPath}/admin/recorddonation">
+            <span class="icon">🩸</span> Record Donation
+        </a>
         <a href="${pageContext.request.contextPath}/about.jsp">
             <span class="icon">ℹ️</span> About
         </a>
