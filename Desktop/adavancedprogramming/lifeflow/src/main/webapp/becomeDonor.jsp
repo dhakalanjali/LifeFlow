@@ -20,6 +20,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Become a Donor – LifeFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,9 +30,10 @@
       --bg: #f4f4f0; --card: #FFFFFF; --text: #1a1a1a;
       --muted: #6b7280; --border: #e5e7eb;
       --green: #16a34a; --green-bg: #dcfce7;
-      --radius: 14px; --shadow: 0 4px 24px rgba(0,0,0,.08);
+      --radius: 14px; --radius-sm: 8px; --shadow: 0 4px 24px rgba(0,0,0,.08);
     }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
 
     .navbar {
       background: var(--red); padding: 0 2.5rem; height: 60px;
@@ -42,12 +45,13 @@
     .navbar-links { display: flex; align-items: center; gap: 2px; }
     .navbar-links a {
       color: rgba(255,255,255,0.88); text-decoration: none;
-      font-size: 13px; padding: 6px 12px; border-radius: 8px; transition: background 0.15s;
+      font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s;
     }
     .navbar-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
     .btn-logout {
       background: rgba(255,255,255,0.15) !important; color: #fff !important;
       border: 1px solid rgba(255,255,255,0.35); margin-left: 8px; font-weight: 500;
+      border-radius: var(--radius-sm);
     }
 
     .page-wrapper { max-width: 640px; margin: 40px auto; padding: 0 16px; }
@@ -129,10 +133,11 @@
     }
     .btn-outline:hover { background: var(--red); color: #fff; }
 
-    @media (max-width: 560px) {
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1rem; }
+      .navbar-links { display: none; }
       .user-info { grid-template-columns: 1fr; }
       .card { padding: 24px 18px; }
-      .navbar { padding: 0 1rem; }
     }
   </style>
 </head>
@@ -143,9 +148,12 @@
   <div class="navbar-links">
     <a href="<%= request.getContextPath() %>/userDashboard.jsp">Home</a>
     <a href="<%= request.getContextPath() %>/searchBlood.jsp">Search Blood</a>
-    <a href="<%= request.getContextPath() %>/donationCamp.jsp">Donation Camps</a>
+    <a href="<%= request.getContextPath() %>/requestBlood.jsp">Request Blood</a>
     <a href="<%= request.getContextPath() %>/donationHistory.jsp">Donation History</a>
+    <a href="<%= request.getContextPath() %>/wishlist.jsp">My Wishlist</a>
     <a href="<%= request.getContextPath() %>/profile.jsp">My Profile</a>
+    <a href="<%= request.getContextPath() %>/about.jsp">About</a>
+    <a href="<%= request.getContextPath() %>/contact.jsp">Contact</a>
     <a href="<%= request.getContextPath() %>/logout" class="btn-logout">Logout</a>
   </div>
 </nav>

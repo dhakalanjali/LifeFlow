@@ -19,6 +19,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Donate Blood – LifeFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,9 +29,10 @@
       --bg: #f4f4f0; --card: #FFFFFF; --text: #1a1a1a;
       --muted: #6b7280; --border: #e5e7eb;
       --green: #16a34a; --green-bg: #dcfce7;
-      --radius: 14px; --shadow: 0 4px 24px rgba(0,0,0,.08);
+      --radius: 14px; --radius-sm: 8px; --shadow: 0 4px 24px rgba(0,0,0,.08);
     }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
 
     .navbar {
       background: var(--red); padding: 0 2.5rem; height: 60px;
@@ -41,12 +44,13 @@
     .navbar-links { display: flex; align-items: center; gap: 2px; }
     .navbar-links a {
       color: rgba(255,255,255,0.88); text-decoration: none;
-      font-size: 13px; padding: 6px 12px; border-radius: 8px; transition: background 0.15s;
+      font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s;
     }
     .navbar-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
     .btn-logout {
       background: rgba(255,255,255,0.15) !important; color: #fff !important;
       border: 1px solid rgba(255,255,255,0.35); margin-left: 8px; font-weight: 500;
+      border-radius: var(--radius-sm);
     }
 
     .page-wrapper { max-width: 760px; margin: 40px auto; padding: 0 16px; }
@@ -73,13 +77,9 @@
       letter-spacing: .07em; color: var(--muted); margin-bottom: 16px;
     }
 
-    /* ── Not a donor banner ── */
-    .not-donor-banner {
-      text-align: center; padding: 40px 24px;
-    }
-    .not-donor-banner .big-icon {
-      font-size: 3.5rem; color: var(--muted); margin-bottom: 16px;
-    }
+    /* Not a donor banner */
+    .not-donor-banner { text-align: center; padding: 40px 24px; }
+    .not-donor-banner .big-icon { font-size: 3.5rem; color: var(--muted); margin-bottom: 16px; }
     .not-donor-banner h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
     .not-donor-banner p  { color: var(--muted); font-size: .93rem; margin-bottom: 24px; line-height: 1.6; }
     .btn-become {
@@ -90,7 +90,7 @@
     }
     .btn-become:hover { background: var(--red-dark); }
 
-    /* ── Donor status grid ── */
+    /* Donor status grid */
     .donor-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .info-item { background: #f8f8f8; border: 1.5px solid var(--border); border-radius: 8px; padding: 14px 16px; }
     .info-item .info-label {
@@ -98,23 +98,20 @@
       letter-spacing: .06em; color: var(--muted); margin-bottom: 6px;
     }
     .info-item .info-value { font-size: .95rem; font-weight: 600; color: var(--text); }
-    .badge {
-      display: inline-block; font-weight: 700; padding: 3px 12px;
-      border-radius: 20px; font-size: .85rem;
-    }
+    .badge { display: inline-block; font-weight: 700; padding: 3px 12px; border-radius: 20px; font-size: .85rem; }
     .badge-green { background: var(--green-bg); color: var(--green); }
     .badge-red   { background: var(--red-light); color: var(--red); }
 
     .divider { border: none; border-top: 1.5px dashed var(--border); margin: 24px 0; }
 
-    /* ── Info box ── */
+    /* Info box */
     .info-box {
       background: var(--red-light); border-left: 4px solid var(--red);
       border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;
       font-size: .88rem; color: #7b241c; line-height: 1.7;
     }
 
-    /* ── Camps list ── */
+    /* Camps list */
     .camp-list { display: flex; flex-direction: column; gap: 14px; }
     .camp-card {
       display: flex; align-items: center; justify-content: space-between;
@@ -136,11 +133,12 @@
     .no-camps { text-align: center; padding: 32px; color: var(--muted); font-size: .95rem; }
     .no-camps i { font-size: 2rem; margin-bottom: 10px; display: block; }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1rem; }
+      .navbar-links { display: none; }
       .donor-info-grid { grid-template-columns: 1fr 1fr; }
       .camp-card { flex-direction: column; align-items: flex-start; gap: 12px; }
       .card { padding: 20px 16px; }
-      .navbar { padding: 0 1rem; }
     }
   </style>
 </head>
@@ -151,9 +149,12 @@
   <div class="navbar-links">
     <a href="<%= request.getContextPath() %>/userDashboard.jsp">Home</a>
     <a href="<%= request.getContextPath() %>/searchBlood.jsp">Search Blood</a>
-    <a href="<%= request.getContextPath() %>/donationCamps.jsp">Donation Camps</a>
+    <a href="<%= request.getContextPath() %>/requestBlood.jsp">Request Blood</a>
     <a href="<%= request.getContextPath() %>/donationHistory.jsp">Donation History</a>
+    <a href="<%= request.getContextPath() %>/wishlist.jsp">My Wishlist</a>
     <a href="<%= request.getContextPath() %>/profile.jsp">My Profile</a>
+    <a href="<%= request.getContextPath() %>/about.jsp">About</a>
+    <a href="<%= request.getContextPath() %>/contact.jsp">Contact</a>
     <a href="<%= request.getContextPath() %>/logout" class="btn-logout">Logout</a>
   </div>
 </nav>
@@ -171,7 +172,6 @@
   </div>
 
   <% if (!isDonor) { %>
-  <!-- ── NOT A DONOR — show register button, hide camps ── -->
   <div class="card">
     <div class="not-donor-banner">
       <div class="big-icon"><i class="fa-solid fa-hand-holding-droplet"></i></div>
@@ -187,9 +187,7 @@
   </div>
 
   <% } else { %>
-  <!-- ── IS A DONOR — show status + camps ── -->
 
-  <!-- Donor Status -->
   <div class="card">
     <p class="section-title">Your Donor Status</p>
     <div class="donor-info-grid">
@@ -220,14 +218,12 @@
     </div>
   </div>
 
-  <!-- How it works -->
   <div class="info-box">
     <strong><i class="fa-solid fa-circle-info"></i> How donating works:</strong><br/>
     Wishlist a camp below → Attend physically on the camp day →
     Admin records your donation → It appears in your Donation History.
   </div>
 
-  <!-- Upcoming Camps -->
   <div class="card">
     <p class="section-title">Upcoming Donation Camps</p>
     <% if (camps == null || camps.isEmpty()) { %>
@@ -260,4 +256,3 @@
 </div>
 </body>
 </html>
-
