@@ -60,7 +60,9 @@
 
         /* ── ADMIN TOPBAR ── */
         .admin-topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
-        .admin-topbar h2 { font-size: 18px; font-weight: 800; color: var(--text); }
+        .admin-topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
+        .admin-topbar-left span { font-size: 12px; color: var(--text-muted); }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
@@ -166,10 +168,10 @@
     <nav class="sidebar-menu">
         <a href="${pageContext.request.contextPath}/admin/dashboard"><span class="icon">🏠</span> Dashboard</a>
         <a href="${pageContext.request.contextPath}/admin/manageUsers"><span class="icon">👥</span> Manage Users</a>
-        <a href="${pageContext.request.contextPath}/manageCamps.jsp"><span class="icon">⛺</span> Manage Camps</a>
-        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
+        <a href="${pageContext.request.contextPath}/admin/manageCamps"><span class="icon">⛺</span> Manage Camps</a>
+        <a href="${pageContext.request.contextPath}/admin/bloodStock"><span class="icon">🩸</span> Blood Stock</a>
         <a href="${pageContext.request.contextPath}/bloodRequest"><span class="icon">🔍</span> Search Blood</a>
-        <a href="${pageContext.request.contextPath}/reports.jsp"><span class="icon">📊</span> Reports</a>
+        <a href="${pageContext.request.contextPath}/admin/reports"><span class="icon">📊</span> Reports</a>
         <a href="${pageContext.request.contextPath}/admin/recorddonation"><span class="icon">🩸</span> Record Donation</a>
         <a href="${pageContext.request.contextPath}/about.jsp" class="active"><span class="icon">ℹ️</span> About</a>
         <a href="${pageContext.request.contextPath}/contact.jsp"><span class="icon">📞</span> Contact</a>
@@ -186,10 +188,15 @@
     <!-- ADMIN TOPBAR -->
     <% if(isAdmin) { %>
     <header class="admin-topbar">
-        <h2>ℹ️ About</h2>
-        <div class="topbar-admin">
-            <div class="admin-avatar">A</div>
-            <span class="admin-name">Admin</span>
+        <div class="admin-topbar-left">
+            <h2>ℹ️ About</h2>
+            <span>Learn more about LifeFlow Blood Bank</span>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-admin">
+                <div class="admin-avatar">A</div>
+                <span class="admin-name">Admin</span>
+            </div>
         </div>
     </header>
     <% } else { %>
