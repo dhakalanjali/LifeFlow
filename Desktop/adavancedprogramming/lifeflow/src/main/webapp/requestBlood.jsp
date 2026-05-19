@@ -2,7 +2,6 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="com.lifeflow.lifeflow.model.User" %>
 <%
-    // ── SESSION CHECK ──
     User currentUser = (User) session.getAttribute("user");
     if (currentUser == null) {
         response.sendRedirect(request.getContextPath() + "/login");
@@ -18,24 +17,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --red: #c0392b; --red-dark: #a93226; --red-light: #f9ebea;
-            --bg: #f0f2f5; --white: #ffffff; --text: #2c3e50;
-            --text-muted: #7f8c8d; --border: #e8ecef;
-            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --red: #C0392B; --red-dark: #96281B; --red-light: #fde8e8;
+            --red-border: #f5b7b1; --bg: #f4f4f0; --white: #ffffff;
+            --text: #1a1a1a; --text-muted: #6b7280; --border: rgba(0,0,0,0.08);
+            --shadow: 0 2px 12px rgba(0,0,0,0.07);
             --green: #27ae60; --orange: #e67e22;
+            --radius: 14px; --radius-sm: 8px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-        /* ── WHITE NAVBAR ── */
-        .navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
-        .navbar .logo { color: var(--red); font-size: 22px; font-weight: 800; text-decoration: none; }
-        .navbar .nav-links { display: flex; align-items: center; gap: 4px; }
-        .navbar .nav-links a { color: var(--text-muted); text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; }
-        .navbar .nav-links a:hover { color: var(--text); background: var(--bg); }
-        .navbar .nav-links a.active { color: white; background: var(--red); }
-        .navbar .nav-links a.logout { color: #e57373; }
-        .navbar .nav-links a.logout:hover { background: var(--red-light); color: var(--red); }
+        /* ── NAVBAR — matches userDashboard ── */
+        .navbar { background: var(--red); padding: 0 2.5rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 12px rgba(192,57,43,0.25); }
+        .navbar .logo { color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
+        .navbar .nav-links { display: flex; align-items: center; gap: 2px; }
+        .navbar .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s; font-weight: 500; white-space: nowrap; }
+        .navbar .nav-links a:hover  { background: rgba(255,255,255,0.15); color: #fff; }
+        .navbar .nav-links a.active { background: rgba(255,255,255,0.22); color: #fff; font-weight: 600; }
+        .navbar .nav-links a.logout { background: rgba(255,255,255,0.15); color: #fff !important; border: 1px solid rgba(255,255,255,0.35); margin-left: 6px; }
+        .navbar .nav-links a.logout:hover { background: rgba(255,255,255,0.28); }
+
+        /* hamburger */
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+        .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; transition: all 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .mobile-menu { display: none; flex-direction: column; background: var(--red-dark); padding: 10px 1.5rem; gap: 2px; position: sticky; top: 60px; z-index: 99; }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .mobile-menu a:last-child { border-bottom: none; }
 
         /* ── PAGE HEADER ── */
         .page-header { background: linear-gradient(135deg, var(--red-dark), var(--red)); color: white; padding: 2.5rem 2rem; text-align: center; position: relative; overflow: hidden; }
@@ -56,8 +67,8 @@
         .session-banner { background: var(--red-light); border-left: 4px solid var(--red); padding: 12px 18px; border-radius: 0 10px 10px 0; font-size: 13px; color: var(--red-dark); font-weight: 600; margin-bottom: 20px; }
 
         /* ── FORM CARD ── */
-        .form-card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
-        .form-card-header { background: var(--red-light); padding: 18px 24px; border-bottom: 1px solid var(--border); }
+        .form-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .form-card-header { background: var(--red-light); padding: 18px 24px; border-bottom: 1px solid var(--red-border); }
         .form-card-header h2 { font-size: 15px; font-weight: 800; color: var(--red-dark); }
         .form-card-body { padding: 24px; }
 
@@ -71,7 +82,7 @@
         .form-group select,
         .form-group textarea {
             width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
-            border-radius: 8px; font-size: 13px; font-family: 'Nunito', sans-serif;
+            border-radius: var(--radius-sm); font-size: 13px; font-family: 'Nunito', sans-serif;
             font-weight: 600; color: var(--text); background: var(--bg);
             transition: border 0.2s; outline: none;
         }
@@ -98,21 +109,23 @@
 
         /* ── FORM ACTIONS ── */
         .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; grid-column: 1 / -1; }
-        .btn-submit { padding: 10px 28px; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; }
+        .btn-submit { padding: 10px 28px; background: var(--red); color: white; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; }
         .btn-submit:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(192,57,43,0.3); }
-        .btn-reset { padding: 10px 22px; background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; }
+        .btn-reset { padding: 10px 22px; background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; }
         .btn-reset:hover { background: var(--border); }
 
         /* ── INFO NOTE ── */
         .info-note { background: var(--red-light); border-radius: 10px; padding: 14px 18px; margin-top: 20px; font-size: 13px; color: var(--red-dark); font-weight: 600; display: flex; gap: 10px; }
 
         /* ── FOOTER ── */
-        footer { background: #1a252f; color: rgba(255,255,255,0.65); text-align: center; padding: 1.5rem; font-size: 0.85rem; font-weight: 600; }
-        footer a { color: rgba(255,255,255,0.85); text-decoration: none; }
+        footer { background: #1a1a1a; color: rgba(255,255,255,0.45); text-align: center; padding: 1.25rem; font-size: 12px; font-weight: 500; margin-top: 2rem; }
+        footer a { color: rgba(255,255,255,0.65); text-decoration: none; }
 
         /* ── RESPONSIVE ── */
         @media(max-width: 768px) {
-            .navbar { padding: 15px 20px; }
+            .navbar { padding: 0 1.25rem; }
+            .navbar .nav-links { display: none; }
+            .hamburger { display: flex; }
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full { grid-column: 1; }
             .form-actions { flex-direction: column-reverse; }
@@ -122,52 +135,66 @@
 </head>
 <body>
 
-<!-- ── WHITE NAVBAR ── -->
+<!-- NAVBAR — matches userDashboard -->
 <nav class="navbar">
-    <a href="index.jsp" class="logo">🩸 LifeFlow</a>
+    <a href="${pageContext.request.contextPath}/userDashboard.jsp" class="logo">&#10084; LifeFlow</a>
     <div class="nav-links">
-        <a href="index.jsp">Home</a>
-        <a href="about.jsp">About</a>
-        <a href="contact.jsp">Contact</a>
-        <a href="requestBlood.jsp" class="active">Request Blood</a>
-        <% if(currentUser != null) { %>
-        <a href="<%=request.getContextPath()%>/userDashboard.jsp">My Dashboard</a>
-        <a href="<%=request.getContextPath()%>/logout" class="logout">Logout</a>
-        <% } %>
+        <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
+        <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a>
+        <a href="${pageContext.request.contextPath}/requestBlood.jsp" class="active">Request Blood</a>
+        <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
+        <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
+        <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
+        <a href="${pageContext.request.contextPath}/about.jsp">About</a>
+        <a href="${pageContext.request.contextPath}/contact.jsp">Contact</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Logout</a>
     </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
 </nav>
 
-<!-- ── PAGE HEADER ── -->
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
+    <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a>
+    <a href="${pageContext.request.contextPath}/requestBlood.jsp">Request Blood</a>
+    <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
+    <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
+    <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
+    <a href="${pageContext.request.contextPath}/about.jsp">About</a>
+    <a href="${pageContext.request.contextPath}/contact.jsp">Contact</a>
+    <a href="${pageContext.request.contextPath}/logout">Logout</a>
+</div>
+
+<!-- PAGE HEADER -->
 <div class="page-header">
     <div class="page-header-inner">
-        <h1>🩸 Request Blood</h1>
+        <h1>&#128137; Request Blood</h1>
         <p>Fill in the details below to submit an urgent blood request</p>
     </div>
 </div>
 
 <main class="main-wrapper">
 
-    <%-- Session greeting --%>
     <div class="session-banner">
-        👋 Welcome, <strong><%= currentUser.getFullName() %></strong>. Please fill in the blood request form below.
+        &#128075; Welcome, <strong><%= currentUser.getFullName() %></strong>. Please fill in the blood request form below.
     </div>
 
-    <%-- Server messages --%>
     <%
         String successMsg = (String) request.getAttribute("successMessage");
         String errorMsg   = (String) request.getAttribute("errorMessage");
     %>
     <% if(successMsg != null) { %>
-    <div class="alert success">✅ <%= successMsg %></div>
+    <div class="alert success">&#9989; <%= successMsg %></div>
     <% } %>
     <% if(errorMsg != null) { %>
-    <div class="alert error">⚠️ <%= errorMsg %></div>
+    <div class="alert error">&#9888;&#65039; <%= errorMsg %></div>
     <% } %>
 
-    <!-- FORM CARD -->
     <div class="form-card">
         <div class="form-card-header">
-            <h2>📋 Patient Blood Request Form</h2>
+            <h2>&#128203; Patient Blood Request Form</h2>
         </div>
         <div class="form-card-body">
 
@@ -175,7 +202,6 @@
 
             <form id="bloodRequestForm" action="<%=request.getContextPath()%>/BloodRequestServlet" method="post" novalidate>
 
-                <%-- Pass logged-in user ID --%>
                 <input type="hidden" name="userId" value="<%= currentUser.getUserId() %>">
 
                 <div class="form-grid">
@@ -228,15 +254,15 @@
                         <div class="urgency-group">
                             <label class="urgency-option">
                                 <input type="radio" name="urgencyLevel" value="Critical">
-                                <span class="badge badge-critical">🔴 Critical</span>
+                                <span class="badge badge-critical">&#128308; Critical</span>
                             </label>
                             <label class="urgency-option">
                                 <input type="radio" name="urgencyLevel" value="Urgent">
-                                <span class="badge badge-urgent">🟠 Urgent</span>
+                                <span class="badge badge-urgent">&#128992; Urgent</span>
                             </label>
                             <label class="urgency-option">
                                 <input type="radio" name="urgencyLevel" value="Normal" checked>
-                                <span class="badge badge-normal">🟢 Normal</span>
+                                <span class="badge badge-normal">&#128994; Normal</span>
                             </label>
                         </div>
                         <span class="field-error" id="urgencyError">Please select an urgency level.</span>
@@ -250,7 +276,7 @@
 
                     <div class="form-actions">
                         <button type="reset" class="btn-reset" onclick="clearValidation()">Reset</button>
-                        <button type="submit" class="btn-submit">🩸 Submit Request</button>
+                        <button type="submit" class="btn-submit">&#128137; Submit Request</button>
                     </div>
 
                 </div>
@@ -259,7 +285,7 @@
     </div>
 
     <div class="info-note">
-        <span>ℹ️</span>
+        <span>&#8505;&#65039;</span>
         <span>All blood requests are reviewed by our medical team within <strong>30 minutes</strong>.
         For life-threatening emergencies, please call <strong>102</strong> immediately.</span>
     </div>
@@ -267,12 +293,17 @@
 </main>
 
 <footer>
-    <p>&copy; 2026 LifeFlow Blood Bank &mdash; <a href="contact.jsp">Contact Us</a></p>
+    &copy; 2026 LifeFlow Blood Bank &mdash; <a href="contact.jsp">Contact Us</a>
 </footer>
 
 <script>
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('requestDate').setAttribute('min', today);
+
+    function toggleMenu() {
+        document.getElementById('mobileMenu').classList.toggle('open');
+        document.getElementById('hamburger').classList.toggle('open');
+    }
 
     function clearValidation() {
         document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
@@ -302,7 +333,7 @@
         if(!valid) {
             e.preventDefault();
             const box = document.getElementById('validationError');
-            box.innerHTML = '⚠️ Please fix the following:<ul style="margin-top:6px;padding-left:18px;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+            box.innerHTML = '&#9888;&#65039; Please fix the following:<ul style="margin-top:6px;padding-left:18px;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
             box.style.display = 'block';
             box.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
