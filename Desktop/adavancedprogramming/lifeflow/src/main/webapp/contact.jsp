@@ -46,17 +46,19 @@
         .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .main.with-sidebar { margin-left: 240px; }
 
-        /* ── WHITE NAVBAR (guest/user only) ── */
+        /* ── NAVBAR (matches index.jsp exactly) ── */
         .navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
-        .navbar .logo { color: #C0392B; font-size: 22px; font-weight: 800; text-decoration: none; }
+        .navbar .logo { color: #C0392B; font-size: 26px; font-weight: bold; text-decoration: none; }
         .navbar .nav-links { display: flex; align-items: center; }
-        .navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; font-weight: 600; transition: color 0.2s; }
+        .navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; }
         .navbar .nav-links a:hover { color: #C0392B; }
-        .navbar .nav-links a.active { color: #C0392B; font-weight: 700; }
-        .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: 800 !important; }
+        .navbar .nav-links a.active { color: #C0392B; font-weight: bold; }
+        .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; }
         .btn-nav-login:hover { background-color: black !important; }
-        .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: 800 !important; }
+        .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: bold; }
         .btn-nav-register:hover { background-color: black !important; color: white !important; border-color: black !important; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 5px; background: none; border: none; padding: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: #C0392B; border-radius: 3px; display: block; }
 
         /* ── ADMIN TOPBAR ── */
         .admin-topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
@@ -127,6 +129,10 @@
             .sidebar { display: none; }
             .main.with-sidebar { margin-left: 0; }
             .navbar { padding: 15px 20px; }
+            .hamburger { display: flex; }
+            .navbar .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); gap: 10px; z-index: 99; }
+            .navbar .nav-links.open { display: flex; }
+            .navbar .nav-links a { margin-left: 0; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full { grid-column: 1; }
             .form-actions { flex-direction: column-reverse; }
@@ -151,7 +157,6 @@
         <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
         <a href="${pageContext.request.contextPath}/bloodRequest"><span class="icon">🔍</span> Search Blood</a>
         <a href="${pageContext.request.contextPath}/reports.jsp"><span class="icon">📊</span> Reports</a>
-        <a href="${pageContext.request.contextPath}/admin/recorddonation"><span class="icon">🩸</span> Record Donation</a>
         <a href="${pageContext.request.contextPath}/about.jsp"><span class="icon">ℹ️</span> About</a>
         <a href="${pageContext.request.contextPath}/contact.jsp" class="active"><span class="icon">📞</span> Contact</a>
     </nav>
@@ -174,11 +179,15 @@
         </div>
     </header>
     <% } else { %>
-    <!-- WHITE NAVBAR for guests and regular users -->
+    <!-- NAVBAR matching index.jsp -->
     <nav class="navbar">
         <a href="index.jsp" class="logo">🩸 LifeFlow</a>
-        <div class="nav-links">
-            <a href="index.jsp">Home</a>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.jsp#features">Features</a>
+            <a href="index.jsp#how-it-works">How it Works</a>
             <a href="about.jsp">About</a>
             <a href="contact.jsp" class="active">Contact</a>
             <% if(currentUser != null) { %>
@@ -300,6 +309,14 @@
 </div>
 
 <script>
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('navLinks').classList.remove('open');
+        });
+    });
     function clearValidation() {
         document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
         document.querySelectorAll('input, select, textarea').forEach(el => el.style.borderColor = '');
