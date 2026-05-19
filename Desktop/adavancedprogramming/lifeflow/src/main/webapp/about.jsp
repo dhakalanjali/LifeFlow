@@ -3,6 +3,7 @@
 <%
     User currentUser = (User) session.getAttribute("user");
     boolean isAdmin = currentUser != null && "admin".equals(currentUser.getRole());
+    boolean isUser  = currentUser != null && !isAdmin;
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +12,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | LifeFlow Blood Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --red: #c0392b;
@@ -23,6 +26,7 @@
             --border: #e8ecef;
             --shadow: 0 2px 12px rgba(0,0,0,0.08);
             --green: #27ae60;
+            --radius-sm: 8px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; line-height: 1.7; }
@@ -46,18 +50,6 @@
         .main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .main.with-sidebar { margin-left: 240px; }
 
-        /* ── WHITE NAVBAR (guest/user only) ── */
-        .navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
-        .navbar .logo { color: #C0392B; font-size: 22px; font-weight: 800; text-decoration: none; }
-        .navbar .nav-links { display: flex; align-items: center; }
-        .navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; font-weight: 600; transition: color 0.2s; }
-        .navbar .nav-links a:hover { color: #C0392B; }
-        .navbar .nav-links a.active { color: #C0392B; font-weight: 700; }
-        .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: 800 !important; }
-        .btn-nav-login:hover { background-color: black !important; }
-        .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: 800 !important; }
-        .btn-nav-register:hover { background-color: black !important; color: white !important; border-color: black !important; }
-
         /* ── ADMIN TOPBAR ── */
         .admin-topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
         .admin-topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
@@ -66,6 +58,30 @@
         .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
         .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
         .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
+
+        /* ── USER NAVBAR (red, matches userDashboard.jsp) ── */
+        .user-navbar { background: #C0392B; padding: 0 2.5rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 12px rgba(192,57,43,0.25); font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
+        .user-navbar-brand { color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
+        .user-navbar-links { display: flex; align-items: center; gap: 2px; }
+        .user-navbar-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s; }
+        .user-navbar-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .user-navbar-links a.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+        .btn-user-logout { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.35) !important; margin-left: 8px; font-weight: 500; border-radius: var(--radius-sm); padding: 6px 12px; text-decoration: none; font-size: 13px; }
+        .btn-user-logout:hover { background: rgba(255,255,255,0.28) !important; }
+
+        /* ── GUEST NAVBAR (white, matches index.jsp) ── */
+        .guest-navbar { background-color: #ffffff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        .guest-navbar .logo { color: #C0392B; font-size: 26px; font-weight: 800; text-decoration: none; }
+        .guest-navbar .nav-links { display: flex; align-items: center; }
+        .guest-navbar .nav-links a { color: #2C3E50; text-decoration: none; margin-left: 20px; font-size: 15px; font-weight: 600; transition: color 0.2s; }
+        .guest-navbar .nav-links a:hover { color: #C0392B; }
+        .guest-navbar .nav-links a.active { color: #C0392B; font-weight: 700; }
+        .btn-nav-login { background-color: #C0392B !important; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: 800 !important; }
+        .btn-nav-login:hover { background-color: black !important; }
+        .btn-nav-register { background-color: transparent !important; color: #C0392B !important; padding: 8px 20px; border-radius: 25px; border: 2px solid #C0392B; font-weight: 800 !important; }
+        .btn-nav-register:hover { background-color: black !important; color: white !important; border-color: black !important; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 5px; background: none; border: none; padding: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: #C0392B; border-radius: 3px; display: block; }
 
         /* ── HERO ── */
         .hero { background: linear-gradient(135deg, var(--red-dark) 0%, var(--red) 60%, #e74c3c 100%); color: white; padding: 5rem 2rem; text-align: center; position: relative; overflow: hidden; }
@@ -148,7 +164,13 @@
         @media(max-width: 768px) {
             .sidebar { display: none; }
             .main.with-sidebar { margin-left: 0; }
-            .navbar { padding: 15px 20px; }
+            .user-navbar { padding: 0 1rem; }
+            .user-navbar-links { display: none; }
+            .guest-navbar { padding: 15px 20px; }
+            .hamburger { display: flex; }
+            .guest-navbar .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); gap: 10px; z-index: 99; }
+            .guest-navbar .nav-links.open { display: flex; }
+            .guest-navbar .nav-links a { margin-left: 0; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
             .hero h1 { font-size: 1.8rem; }
             .services-grid, .awareness-list, .mission-cards { grid-template-columns: 1fr; }
             .section-wrapper { padding: 2.5rem 1rem; }
@@ -185,7 +207,7 @@
 <!-- ── MAIN ── -->
 <div class="main <%= isAdmin ? "with-sidebar" : "" %>">
 
-    <!-- ADMIN TOPBAR -->
+    <!-- ══ ADMIN TOPBAR ══ -->
     <% if(isAdmin) { %>
     <header class="admin-topbar">
         <div class="admin-topbar-left">
@@ -199,21 +221,38 @@
             </div>
         </div>
     </header>
+
+    <!-- ══ USER NAVBAR (red, matches userDashboard.jsp) ══ -->
+    <% } else if(isUser) { %>
+    <nav class="user-navbar">
+        <a href="${pageContext.request.contextPath}/userDashboard.jsp" class="user-navbar-brand">&#10084; LifeFlow</a>
+        <div class="user-navbar-links">
+            <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
+            <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a>
+            <a href="${pageContext.request.contextPath}/requestBlood.jsp">Request Blood</a>
+            <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
+            <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
+            <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
+            <a href="${pageContext.request.contextPath}/about.jsp" class="active">About</a>
+            <a href="${pageContext.request.contextPath}/contact.jsp">Contact</a>
+            <a href="${pageContext.request.contextPath}/logout" class="btn-user-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- ══ GUEST NAVBAR (white, matches index.jsp) ══ -->
     <% } else { %>
-    <!-- WHITE NAVBAR for guests and regular users -->
-    <nav class="navbar">
+    <nav class="guest-navbar">
         <a href="index.jsp" class="logo">🩸 LifeFlow</a>
-        <div class="nav-links">
-            <a href="index.jsp">Home</a>
+        <button class="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.jsp#features">Features</a>
+            <a href="index.jsp#how-it-works">How it Works</a>
             <a href="about.jsp" class="active">About</a>
             <a href="contact.jsp">Contact</a>
-            <% if(currentUser != null) { %>
-            <a href="<%=request.getContextPath()%>/userDashboard.jsp">My Dashboard</a>
-            <a href="<%=request.getContextPath()%>/logout" class="btn-nav-login">Logout</a>
-            <% } else { %>
             <a href="<%=request.getContextPath()%>/login" class="btn-nav-login">Login</a>
             <a href="<%=request.getContextPath()%>/register" class="btn-nav-register">Register</a>
-            <% } %>
         </div>
     </nav>
     <% } %>
@@ -313,8 +352,13 @@
         <h2>Ready to Make a Difference?</h2>
         <p>Whether you need blood urgently or want to become a donor, we are here to help 24 hours a day.</p>
         <div class="cta-buttons">
+            <% if(isUser) { %>
+            <a href="<%=request.getContextPath()%>/requestBlood.jsp" class="cta-btn-primary">&#128137; Request Blood</a>
+            <a href="<%=request.getContextPath()%>/donateBlood.jsp" class="cta-btn-outline">Donate Blood</a>
+            <% } else { %>
             <a href="<%=request.getContextPath()%>/register" class="cta-btn-primary">Register Now</a>
             <a href="contact.jsp" class="cta-btn-outline">Contact Us</a>
+            <% } %>
         </div>
     </section>
 
@@ -323,5 +367,17 @@
     </footer>
 
 </div>
+
+<script>
+    function toggleMenu() {
+        const n = document.getElementById('navLinks');
+        if(n) n.classList.toggle('open');
+    }
+    const guestLinks = document.querySelectorAll('#navLinks a');
+    if(guestLinks) guestLinks.forEach(l => l.addEventListener('click', () => {
+        const n = document.getElementById('navLinks');
+        if(n) n.classList.remove('open');
+    }));
+</script>
 </body>
 </html>
