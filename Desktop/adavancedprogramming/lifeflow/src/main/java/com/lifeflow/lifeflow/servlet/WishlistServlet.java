@@ -30,11 +30,14 @@ public class WishlistServlet extends HttpServlet {
         if ("/addWishlist".equals(path)) {
             if (!wishlistDAO.isWishlisted(userId, campId)) {
                 wishlistDAO.addToWishlist(userId, campId);
-                request.getSession().setAttribute("wishlistMsg", "Camp added to wishlist!");
+                // FIX: Use "successMessage" key to match donationCamp.jsp
+                request.getSession().setAttribute("successMessage", "Camp added to your wishlist!");
             } else {
-                request.getSession().setAttribute("wishlistMsg", "Camp already in wishlist!");
+                // FIX: Use "errorMessage" key to match donationCamp.jsp
+                request.getSession().setAttribute("errorMessage", "Camp is already in your wishlist!");
             }
-            response.sendRedirect(request.getContextPath() + "/searchBlood.jsp");
+            // FIX: Redirect back to donationCamp.jsp instead of searchBlood.jsp
+            response.sendRedirect(request.getContextPath() + "/donationCamp.jsp");
         } else {
             wishlistDAO.removeFromWishlist(userId, campId);
             response.sendRedirect(request.getContextPath() + "/wishlist.jsp");

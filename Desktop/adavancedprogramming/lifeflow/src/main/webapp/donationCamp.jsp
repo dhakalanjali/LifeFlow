@@ -312,8 +312,11 @@
       </div>
       <div class="camp-card-footer">
         <span class="camp-date-badge"><%= camp.getDate() %></span>
-        <a href="<%=request.getContextPath()%>/wishlist?action=add&campId=<%= camp.getId() %>"
-           class="btn-wishlist">&#10084; Wishlist</a>
+        <%-- FIX: Use POST form to /addWishlist instead of broken GET link to /wishlist --%>
+        <form action="<%=request.getContextPath()%>/addWishlist" method="post" style="display:inline;">
+          <input type="hidden" name="campId" value="<%= camp.getId() %>"/>
+          <button type="submit" class="btn-wishlist">&#10084; Wishlist</button>
+        </form>
       </div>
     </div>
     <% } %>
