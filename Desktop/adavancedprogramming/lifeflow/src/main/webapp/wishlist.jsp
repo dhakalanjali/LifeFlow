@@ -14,7 +14,8 @@
     List<Map<String, String>> wishlist = wishlistDAO.getWishlist(currentUser.getUserId());
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,7 +92,11 @@
             color: #888;
         }
         .empty-msg p { margin-bottom: 10px; }
-        .empty-msg a { color: #C0392B; font-weight: bold; text-decoration: none; }
+        .empty-msg a {
+            color: #C0392B;
+            font-weight: bold;
+            text-decoration: none;
+        }
 
         @media (max-width: 768px) {
             .navbar { padding: 12px 15px; }
@@ -99,19 +104,20 @@
             .navbar-links a { font-size: 0.8rem; }
             .container { padding: 15px; }
         }
-        @media (max-width: 480px) { .navbar-links { display: none; } }
+        @media (max-width: 480px) {
+            .navbar-links { display: none; }
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <a href="${pageContext.request.contextPath}/userDashboard.jsp" class="navbar-brand">&#10084; LifeFlow</a>
+    <a href="${pageContext.request.contextPath}/index.jsp" class="navbar-brand">❤️ LifeFlow</a>
     <div class="navbar-links">
-        <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
+        <a href="${pageContext.request.contextPath}/index.jsp">Home</a>
         <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a>
         <a href="${pageContext.request.contextPath}/requestBlood.jsp">Request Blood</a>
         <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
-        <a href="${pageContext.request.contextPath}/donationCamp.jsp">Donation Camps</a>
         <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
         <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
         <a href="${pageContext.request.contextPath}/about.jsp">About</a>
@@ -121,7 +127,7 @@
 </nav>
 
 <div class="container">
-    <h2>&#11088; My Wishlist &mdash; Donation Camps</h2>
+    <h2>⭐ My Wishlist — Donation Camps</h2>
 
     <% if (session.getAttribute("wishlistMsg") != null) { %>
     <div class="alert alert-success"><%= session.getAttribute("wishlistMsg") %></div>
@@ -131,8 +137,8 @@
     <div class="card">
         <% if (wishlist.isEmpty()) { %>
         <div class="empty-msg">
-            <p>&#11088; You have not wishlisted any donation camps yet!</p>
-            <p>Go to <a href="${pageContext.request.contextPath}/donationCamp.jsp">Donation Camps</a> page to find and wishlist upcoming camps!</p>
+            <p>⭐ You have not wishlisted any donation camps yet!</p>
+            <p>Go to <a href="${pageContext.request.contextPath}/searchBlood.jsp">Search Blood</a> page to find and wishlist upcoming camps!</p>
         </div>
         <% } else { %>
         <div class="table-wrap">
@@ -153,15 +159,15 @@
                     <td><%= camp.get("location") %></td>
                     <td><%= camp.get("campDate") %></td>
                     <td>
-                        <span class="status-badge <%= camp.get("status") %>">
-                            <%= camp.get("status") %>
-                        </span>
+                            <span class="status-badge <%= camp.get("status") %>">
+                                <%= camp.get("status") %>
+                            </span>
                     </td>
                     <td>
                         <form action="${pageContext.request.contextPath}/removeWishlist"
                               method="post" style="display:inline;">
                             <input type="hidden" name="campId" value="<%= camp.get("campId") %>">
-                            <button type="submit" class="btn-remove">&#128465; Remove</button>
+                            <button type="submit" class="btn-remove">🗑 Remove</button>
                         </form>
                     </td>
                 </tr>
