@@ -1,37 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.lifeflow.lifeflow.model.User" %>
-<%@ page import="com.lifeflow.lifeflow.model.BloodStock" %>
-<%@ page import="com.lifeflow.lifeflow.service.BloodService" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page session="true" %>
+<%@ page import="java.util.List, java.util.Map" %>
 <%
-    User currentUser = (User) session.getAttribute("user");
-    if (currentUser == null) {
+    User loggedUser = (User) session.getAttribute("user");
+    if(loggedUser == null || !loggedUser.getRole().equals("admin")) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
-    }
-
-    // If admin, redirect to admin search page
-    if ("admin".equals(currentUser.getRole())) {
-        response.sendRedirect(request.getContextPath() + "/bloodRequest");
-        return;
-    }
-
-    String userName = (String) session.getAttribute("userName");
-
-    // Search logic
-    String searchGroup = request.getParameter("bloodGroup");
-    BloodService bloodService = new BloodService();
-    List<BloodStock> allStock = bloodService.getAllBloodStock();
-    List<BloodStock> results = new ArrayList<>();
-
-    if (searchGroup != null && !searchGroup.isEmpty()) {
-        for (BloodStock bs : allStock) {
-            if (bs.getBloodGroup().equals(searchGroup)) {
-                results.add(bs);
-            }
-        }
     }
 %>
 <!DOCTYPE html>
@@ -39,186 +13,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Blood - LifeFlow</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Search Blood | LifeFlow Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --red: #C0392B; --red-dark: #96281B; --red-light: #fde8e8;
-            --red-border: #f5b7b1; --bg: #f4f4f0; --card: #ffffff;
-            --text: #1a1a1a; --muted: #6b7280; --border: rgba(0,0,0,0.08);
-            --radius: 14px; --radius-sm: 8px;
+            --red: #c0392b; --red-dark: #a93226; --bg: #f0f2f5;
+            --white: #ffffff; --text: #2c3e50; --text-muted: #7f8c8d;
+            --border: #e8ecef; --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --green: #27ae60; --orange: #e67e22;
         }
-        body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-        .navbar { background: var(--red); padding: 0 2.5rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(192,57,43,0.25); }
-        .navbar-brand { color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
-        .navbar-links { display: flex; align-items: center; gap: 2px; }
-        .navbar-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); transition: background 0.15s; }
-        .navbar-links a:hover, .navbar-links a.active { background: rgba(255,255,255,0.15); color: #fff; }
-        .btn-logout { background: rgba(255,255,255,0.15) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.35); margin-left: 8px; font-weight: 500; border-radius: var(--radius-sm); }
+        /* SIDEBAR */
+        .sidebar { width: 240px; background: var(--red-dark); min-height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; gap: 10px; }
+        .sidebar-logo .logo-icon { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .sidebar-logo span { color: white; font-size: 18px; font-weight: 800; }
+        .sidebar-section { padding: 16px 14px 6px; font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+        .sidebar-menu { padding: 0 10px; flex: 1; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.75); text-decoration: none; border-radius: 8px; font-size: 13.5px; font-weight: 600; margin-bottom: 2px; transition: all 0.2s; }
+        .sidebar-menu a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar-menu a.active { background: white; color: var(--red-dark); font-weight: 800; }
+        .sidebar-menu a .icon { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-footer { padding: 16px 10px; border-top: 1px solid rgba(255,255,255,0.15); }
+        .sidebar-footer a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: rgba(255,255,255,0.6); text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+        .sidebar-footer a:hover { background: rgba(255,255,255,0.15); color: white; }
 
-        .container { width: 100%; padding: 1.5rem 2.5rem; }
+        /* MAIN */
+        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .topbar { background: var(--white); padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 50; border-bottom: 3px solid var(--red); }
+        .topbar-left h2 { font-size: 18px; font-weight: 800; color: var(--text); }
+        .topbar-left span { font-size: 12px; color: var(--text-muted); }
+        .topbar-admin { display: flex; align-items: center; gap: 10px; background: #fdecea; padding: 6px 14px 6px 8px; border-radius: 50px; }
+        .admin-avatar { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
+        .admin-name { font-size: 13px; font-weight: 700; color: var(--red-dark); }
 
-        .page-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; }
-        .page-title::before { content: ''; display: block; width: 4px; height: 22px; background: var(--red); border-radius: 2px; }
+        /* CONTENT */
+        .content { padding: 28px; flex: 1; }
+        .section-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-        .layout { display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; }
+        /* SEARCH CARD */
+        .search-card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; max-width: 600px; margin-bottom: 28px; }
+        .search-card-header { background: #fdecea; padding: 18px 24px; border-bottom: 1px solid var(--border); }
+        .search-card-header h3 { font-size: 15px; font-weight: 800; color: var(--red-dark); }
+        .search-card-header p { font-size: 12px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
+        .search-card-body { padding: 24px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group select, .form-group input[type="text"] { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; color: var(--text); background: var(--bg); transition: border 0.2s; appearance: none; }
+        .form-group select:focus, .form-group input[type="text"]:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); background: white; }
+        .btn-search { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+        .btn-search:hover { background: var(--red-dark); transform: translateY(-1px); }
 
-        /* SEARCH FORM */
-        .search-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
-        .search-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 1.25rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
-        .form-group select { width: 100%; padding: 10px 14px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text); background: #fafafa; font-family: inherit; outline: none; transition: border-color 0.15s; }
-        .form-group select:focus { border-color: var(--red); background: #fff; }
-        .btn-search { width: 100%; background: var(--red); color: #fff; border: none; padding: 11px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
-        .btn-search:hover { background: var(--red-dark); }
-
-        /* ALL BLOOD STOCK */
-        .stock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-        .blood-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: border-color 0.15s; }
-        .blood-card:hover { border-color: var(--red-border); }
-        .blood-card.out { border-color: var(--red-border); background: var(--red-light); }
-        .blood-card.low { border-color: #f39c12; background: #fffbf0; }
-        .blood-type { font-size: 20px; font-weight: 600; color: var(--red); }
-        .blood-type.empty { color: #bdc3c7; }
-        .blood-units { font-size: 22px; font-weight: 600; }
-        .blood-sub { font-size: 10px; color: var(--muted); }
-        .tag-out { font-size: 10px; color: var(--red); font-weight: 600; }
-        .tag-low { font-size: 10px; color: #d35400; font-weight: 600; }
-        .blood-bar { width: 100%; height: 4px; background: #efefef; border-radius: 4px; margin-top: 6px; overflow: hidden; }
-        .blood-fill { height: 100%; border-radius: 4px; background: var(--red); }
-        .blood-fill.low-fill { background: #f39c12; }
-        .blood-fill.empty-fill { background: #ddd; width: 0 !important; }
+        /* ALERTS */
+        .alert { padding: 14px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+        .alert.error { background: #fdecea; border-left: 4px solid var(--red); color: var(--red-dark); }
 
         /* RESULTS */
-        .results-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-        .results-header { padding: 1rem 1.5rem; border-bottom: 0.5px solid var(--border); font-size: 14px; font-weight: 600; }
-        .result-row { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); }
+        .results-wrap { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; max-width: 700px; }
+        .results-header { background: #fdecea; padding: 18px 24px; border-bottom: 1px solid var(--border); }
+        .results-header h3 { font-size: 15px; font-weight: 800; color: var(--red-dark); }
+        .result-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
         .result-row:last-child { border-bottom: none; }
-        .result-badge { width: 54px; height: 54px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
-        .result-info .units { font-size: 24px; font-weight: 600; }
-        .result-info .sub { font-size: 12px; color: var(--muted); }
-        .avail-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-left: auto; }
-        .avail-yes { background: #e8f5e9; color: #2e7d32; border: 0.5px solid #a5d6a7; }
-        .avail-no  { background: var(--red-light); color: var(--red-dark); border: 0.5px solid var(--red-border); }
+        .blood-badge { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; background: var(--red); color: white; font-weight: 800; font-size: 14px; box-shadow: 0 3px 8px rgba(192,57,43,0.3); }
+        .result-info { flex: 1; margin-left: 16px; }
+        .result-info .units { font-size: 24px; font-weight: 800; color: var(--text); }
+        .result-info .units-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .result-info .location { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+        .status-pill { padding: 6px 16px; border-radius: 50px; font-size: 12px; font-weight: 800; }
+        .status-pill.available { background: #eafaf1; color: #1e8449; }
+        .status-pill.unavailable { background: #fdecea; color: var(--red); }
+        .no-results { padding: 40px 24px; text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .last-updated { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px; }
-        .section-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--red); border-radius: 2px; }
-
-        .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
-        .empty-icon { font-size: 40px; margin-bottom: 0.75rem; opacity: 0.4; }
-
-        @media (max-width: 768px) {
-            .navbar { padding: 0 1rem; }
-            .navbar-links { display: none; }
-            .container { padding: 1rem; }
-            .layout { grid-template-columns: 1fr; }
-            .stock-grid { grid-template-columns: repeat(2, 1fr); }
+        @media(max-width: 768px) {
+            .sidebar { width: 0; overflow: hidden; }
+            .main { margin-left: 0; }
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <a href="${pageContext.request.contextPath}/userDashboard.jsp" class="navbar-brand">&#10084; LifeFlow</a>
-    <div class="navbar-links">
-        <a href="${pageContext.request.contextPath}/userDashboard.jsp">Home</a>
-        <a href="${pageContext.request.contextPath}/searchBlood.jsp" class="active">Search Blood</a>
-        <a href="${pageContext.request.contextPath}/requestBlood.jsp">Request Blood</a>
-        <a href="${pageContext.request.contextPath}/donationHistory.jsp">Donation History</a>
-        <a href="${pageContext.request.contextPath}/wishlist.jsp">My Wishlist</a>
-        <a href="${pageContext.request.contextPath}/profile.jsp">My Profile</a>
-        <a href="${pageContext.request.contextPath}/about.jsp">About</a>
-        <a href="${pageContext.request.contextPath}/contact.jsp">Contact</a>
-        <a href="${pageContext.request.contextPath}/logout" class="btn-logout">Logout</a>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🩸</div>
+        <span>LifeFlow</span>
     </div>
-</nav>
+    <div class="sidebar-section">Admin Panel</div>
+    <nav class="sidebar-menu">
+        <a href="${pageContext.request.contextPath}/admin/dashboard"><span class="icon">🏠</span> Dashboard</a>
+        <a href="${pageContext.request.contextPath}/admin/manageUsers"><span class="icon">👥</span> Manage Users</a>
+        <a href="${pageContext.request.contextPath}/manageCamps.jsp"><span class="icon">⛺</span> Manage Camps</a>
+        <a href="${pageContext.request.contextPath}/manageBloodStock.jsp"><span class="icon">🩸</span> Blood Stock</a>
+        <a href="${pageContext.request.contextPath}/bloodRequest" class="active"><span class="icon">🔍</span> Search Blood</a>
+        <a href="${pageContext.request.contextPath}/reports.jsp"><span class="icon">📊</span> Reports</a>
+        <a href="${pageContext.request.contextPath}/admin/recorddonation"><span class="icon">🩸</span> Record Donation</a>
+        <a href="${pageContext.request.contextPath}/about.jsp"><span class="icon">ℹ️</span> About</a>
+        <a href="${pageContext.request.contextPath}/contact.jsp"><span class="icon">📞</span> Contact</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="${pageContext.request.contextPath}/logout"><span class="icon">🚪</span> Logout</a>
+    </div>
+</aside>
 
-<div class="container">
-    <div class="page-title">&#128269; Search Blood</div>
+<!-- MAIN -->
+<div class="main">
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>🔍 Search Blood</h2>
+            <span>Find available blood by group and location</span>
+        </div>
+        <div class="topbar-admin">
+            <div class="admin-avatar">A</div>
+            <span class="admin-name">Admin</span>
+        </div>
+    </header>
 
-    <div class="layout">
+    <div class="content">
+
+        <%-- Error message --%>
+        <% String errorMsg = (String) request.getAttribute("errorMessage");
+            if(errorMsg != null) { %>
+        <div class="alert error">❌ <%= errorMsg %></div>
+        <% } %>
+
         <!-- SEARCH FORM -->
-        <div>
-            <div class="search-card">
-                <h3>&#128137; Find Blood by Group</h3>
-                <form action="${pageContext.request.contextPath}/searchBlood.jsp" method="get">
+        <div class="section-title">🔍 Search Available Blood</div>
+        <div class="search-card">
+            <div class="search-card-header">
+                <h3>🩸 Blood Search</h3>
+                <p>Select a blood group and enter a location to check stock availability</p>
+            </div>
+            <div class="search-card-body">
+                <form action="${pageContext.request.contextPath}/bloodRequest" method="POST">
                     <div class="form-group">
-                        <label>Blood Group</label>
-                        <select name="bloodGroup" required>
-                            <option value="">-- Select Blood Group --</option>
-                            <% String[] groups = {"A+","A-","B+","B-","AB+","AB-","O+","O-"};
-                                for (String g : groups) { %>
-                            <option value="<%= g %>" <%= g.equals(searchGroup) ? "selected" : "" %>><%= g %></option>
-                            <% } %>
+                        <label for="bloodGroup">Blood Group</label>
+                        <select id="bloodGroup" name="bloodGroup" required>
+                            <option value="">— Select Blood Group —</option>
+                            <option value="A+" <%= "A+".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>A+</option>
+                            <option value="A-" <%= "A-".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>A-</option>
+                            <option value="B+" <%= "B+".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>B+</option>
+                            <option value="B-" <%= "B-".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>B-</option>
+                            <option value="AB+" <%= "AB+".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>AB+</option>
+                            <option value="AB-" <%= "AB-".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>AB-</option>
+                            <option value="O+" <%= "O+".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>O+</option>
+                            <option value="O-" <%= "O-".equals(request.getAttribute("searchBloodGroup")) ? "selected" : "" %>>O-</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-search">&#128269; Search Blood</button>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location"
+                               placeholder="Enter city or area"
+                               value="<%= request.getAttribute("searchLocation") != null ? request.getAttribute("searchLocation") : "" %>"
+                               required>
+                    </div>
+                    <button type="submit" class="btn-search">🔍 Search Blood</button>
                 </form>
             </div>
-
-            <% if (searchGroup != null && !searchGroup.isEmpty()) { %>
-            <div style="margin-top:1rem">
-                <div class="results-card">
-                    <div class="results-header">Results for: <strong style="color:var(--red)"><%= searchGroup %></strong></div>
-                    <% if (results.isEmpty()) { %>
-                    <div class="empty-state">
-                        <div class="empty-icon">&#128137;</div>
-                        <p>No stock found for <%= searchGroup %></p>
-                    </div>
-                    <% } else {
-                        for (BloodStock bs : results) {
-                            boolean isAvail = bs.getUnitsAvailable() > 0;
-                    %>
-                    <div class="result-row">
-                        <div class="result-badge"><%= bs.getBloodGroup() %></div>
-                        <div class="result-info">
-                            <div class="units"><%= bs.getUnitsAvailable() %></div>
-                            <div class="sub">units available</div>
-                        </div>
-                        <span class="avail-badge <%= isAvail ? "avail-yes" : "avail-no" %>">
-                            <%= isAvail ? "&#10004; Available" : "&#10006; Not Available" %>
-                        </span>
-                    </div>
-                    <% } } %>
-                </div>
-            </div>
-            <% } %>
         </div>
 
-        <!-- ALL BLOOD AVAILABILITY -->
-        <div>
-            <div class="section-title">Current Blood Availability</div>
-            <div class="stock-grid">
-                <%
-                    for (BloodStock bs : allStock) {
-                        int units = bs.getUnitsAvailable();
-                        boolean isOut = units == 0;
-                        boolean isLow = !isOut && units < 5;
-                        String cardClass = isOut ? "out" : isLow ? "low" : "";
-                        int pct = Math.min(100, (int)((units / 40.0) * 100));
-                %>
-                <div class="blood-card <%= cardClass %>">
-                    <div class="blood-type <%= isOut ? "empty" : "" %>"><%= bs.getBloodGroup() %></div>
-                    <div class="blood-units <%= isOut ? "empty" : "" %>"><%= units %></div>
-                    <% if (isOut) { %>
-                    <div class="tag-out">Not Available</div>
-                    <% } else if (isLow) { %>
-                    <div class="blood-sub">unit<%= units != 1 ? "s" : "" %> available</div>
-                    <div class="tag-low">Low Stock</div>
-                    <% } else { %>
-                    <div class="blood-sub">unit<%= units != 1 ? "s" : "" %> available</div>
-                    <% } %>
-                    <div class="blood-bar">
-                        <div class="blood-fill <%= isOut ? "empty-fill" : isLow ? "low-fill" : "" %>" style="width:<%= pct %>%"></div>
-                    </div>
-                </div>
-                <% } %>
+        <%-- REAL RESULTS FROM DATABASE --%>
+        <%
+            List<Map<String, String>> results = (List<Map<String, String>>) request.getAttribute("searchResults");
+            String searchMsg = (String) request.getAttribute("searchMessage");
+            if (results != null) {
+        %>
+        <div class="section-title">📋 Search Results</div>
+        <div class="results-wrap">
+            <div class="results-header">
+                <h3>📋 <%= searchMsg != null ? searchMsg : "Results" %></h3>
             </div>
+            <% if (results.isEmpty()) { %>
+            <div class="no-results">
+                😔 No blood stock found for this blood group. Please check other groups.
+            </div>
+            <% } else {
+                for (Map<String, String> r : results) { %>
+            <div class="result-row">
+                <span class="blood-badge"><%= r.get("blood_type") %></span>
+                <div class="result-info">
+                    <div class="units"><%= r.get("units_available") %> <span style="font-size:14px;color:var(--text-muted);">units</span></div>
+                    <div class="location">📍 <%= request.getAttribute("searchLocation") %></div>
+                    <div class="last-updated">Last updated: <%= r.get("last_updated") %></div>
+                </div>
+                <span class="status-pill <%= r.get("status_class") %>">
+                    <%= r.get("status") %>
+                </span>
+            </div>
+            <% } } %>
         </div>
+        <% } %>
+
     </div>
 </div>
 
