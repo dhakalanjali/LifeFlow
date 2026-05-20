@@ -7,29 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DonationRecordDAO.java
- * Handles all database operations for the donation_records table.
- *
- * DB Table columns:
- *   record_id (PK, AUTO_INCREMENT)
- *   user_id   (FK → users)
- *   camp_id   (FK → donation_camps, nullable)
- *   blood_type
- *   units_donated
- *   donation_date
- */
-public class DonationRecordDAO {
 
-    // ─────────────────────────────────────────────────────
-    // INSERT a new donation record
-    // ─────────────────────────────────────────────────────
-    /**
-     * Inserts a new donation record into the database.
-     *
-     * @param record  DonationRecord object filled from the form
-     * @return true if insert was successful, false otherwise
-     */
+public class DonationRecordDAO {
     public boolean insertDonation(DonationRecord record) {
         String sql = "INSERT INTO donation_records (user_id, camp_id, blood_type, units_donated, donation_date) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -55,15 +34,6 @@ public class DonationRecordDAO {
         }
     }
 
-    // ─────────────────────────────────────────────────────
-    // GET all donations by a specific user (donation history)
-    // ─────────────────────────────────────────────────────
-    /**
-     * Retrieves all donation records for a given user.
-     *
-     * @param userId  the logged-in user's ID
-     * @return List of DonationRecord objects
-     */
     public List<DonationRecord> getDonationsByUserId(int userId) {
         List<DonationRecord> list = new ArrayList<>();
         String sql = "SELECT * FROM donation_records WHERE user_id = ? ORDER BY donation_date DESC";
@@ -83,14 +53,6 @@ public class DonationRecordDAO {
         return list;
     }
 
-    // ─────────────────────────────────────────────────────
-    // GET all donations (admin view)
-    // ─────────────────────────────────────────────────────
-    /**
-     * Retrieves all donation records from the database.
-     *
-     * @return List of all DonationRecord objects
-     */
     public List<DonationRecord> getAllDonations() {
         List<DonationRecord> list = new ArrayList<>();
         String sql = "SELECT * FROM donation_records ORDER BY donation_date DESC";
@@ -109,9 +71,7 @@ public class DonationRecordDAO {
         return list;
     }
 
-    // ─────────────────────────────────────────────────────
-    // GET total donation count (for admin dashboard stats)
-    // ─────────────────────────────────────────────────────
+
     public int getTotalDonationCount() {
         String sql = "SELECT COUNT(*) FROM donation_records";
         try (Connection conn = DBConnection.getConnection();
@@ -126,9 +86,6 @@ public class DonationRecordDAO {
         return 0;
     }
 
-    // ─────────────────────────────────────────────────────
-    // PRIVATE HELPER - map ResultSet row → DonationRecord
-    // ─────────────────────────────────────────────────────
     private DonationRecord mapRow(ResultSet rs) throws SQLException {
         DonationRecord r = new DonationRecord();
         r.setId(rs.getInt("record_id"));
