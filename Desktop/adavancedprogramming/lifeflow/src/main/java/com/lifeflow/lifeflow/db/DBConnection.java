@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DBConnection {
 
     // Database connection details
-    private static final String URL = "jdbc:mysql://localhost:3307/lifeflow_db";
+    private static final String URL = "jdbc:mysql://localhost:3306/lifeflow_db";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
 

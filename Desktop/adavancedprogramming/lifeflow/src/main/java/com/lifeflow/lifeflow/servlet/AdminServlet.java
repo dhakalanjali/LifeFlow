@@ -28,9 +28,7 @@ public class AdminServlet extends HttpServlet {
     private final DonationRecordDAO donationRecordDAO = new DonationRecordDAO();
     private final BloodStockDAO     bloodStockDAO     = new BloodStockDAO();
 
-    // ─────────────────────────────────────────────────────
-    // doGet
-    // ─────────────────────────────────────────────────────
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -76,9 +74,7 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    // ─────────────────────────────────────────────────────
-    // doPost
-    // ─────────────────────────────────────────────────────
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -130,7 +126,7 @@ public class AdminServlet extends HttpServlet {
             int    unitsDonated = Integer.parseInt(req.getParameter("unitsDonated"));
             String dateStr      = req.getParameter("donationDate");
 
-            // ── Step 1: Insert into donation_records ──────
+            // Insert into donation_records ──────
             DonationRecord record = new DonationRecord();
             record.setDonorId(userId);
             record.setCampId(campId);
@@ -141,15 +137,14 @@ public class AdminServlet extends HttpServlet {
             boolean saved = donationRecordDAO.insertDonation(record);
 
             if (saved) {
-                // ── Step 2: Update blood_stock ─────────────
+                // Update blood_stock ─────────────
                 BloodStock stock = bloodStockDAO.getStockByBloodGroup(bloodType);
                 if (stock != null) {
                     int newUnits = stock.getUnitsAvailable() + unitsDonated;
                     bloodStockDAO.updateUnits(bloodType, newUnits);
                 }
 
-                // ── Step 3: Update donor eligibility ───────
-                // set last_donation_date = today, is_eligible = no
+
                 donorDAO.updateAfterDonation(userId, dateStr);
 
                 req.getSession().setAttribute("successMessage",
@@ -171,9 +166,6 @@ public class AdminServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/admin/recorddonation");
     }
 
-    // ─────────────────────────────────────────────────────
-    // EXISTING METHODS — unchanged
-    // ─────────────────────────────────────────────────────
     private void showDashboard(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         try {
