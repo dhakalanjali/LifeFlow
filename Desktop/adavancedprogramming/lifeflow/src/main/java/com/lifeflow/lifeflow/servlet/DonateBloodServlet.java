@@ -26,14 +26,11 @@ public class DonateBloodServlet extends HttpServlet {
     private final DonationCampDAO   donationCampDAO   = new DonationCampDAO();
     private final DonorDAO          donorDAO          = new DonorDAO();
 
-    // ─────────────────────────────────────────────────────
-    // doGet — check donor status, then show page
-    // ─────────────────────────────────────────────────────
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Check session
+        // Check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -42,27 +39,25 @@ public class DonateBloodServlet extends HttpServlet {
 
         User loggedInUser = (User) session.getAttribute("user");
 
-        // 2. Check if user is a registered donor
+        // Check if user is a registered donor
         Donor donor = donorDAO.getDonorByUserId(loggedInUser.getUserId());
 
-        // 3. Load camps
+        // Load camps
         List<DonationCamp> camps = donationCampDAO.getAllCamps();
 
-        // 4. Pass donor (null if not registered yet) and camps to JSP
+        // Pass donor (null if not registered yet) and camps to JSP
         request.setAttribute("donor", donor);
         request.setAttribute("camps", camps);
 
         request.getRequestDispatcher("/donateBlood.jsp").forward(request, response);
     }
 
-    // ─────────────────────────────────────────────────────
-    // doPost — process the submitted donation form
-    // ─────────────────────────────────────────────────────
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Check session
+        // Check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -72,13 +67,13 @@ public class DonateBloodServlet extends HttpServlet {
         User loggedInUser = (User) session.getAttribute("user");
         int userId = loggedInUser.getUserId();
 
-        // 2. Read form fields
+        //  Read form fields
         String bloodType       = request.getParameter("bloodType");
         String unitStr         = request.getParameter("unitsDonated");
         String campIdStr       = request.getParameter("campId");
         String donationDateStr = request.getParameter("donationDate");
 
-        // 3. Validation — all required fields must be present
+        //  Validation — all required fields must be present
         if (bloodType == null || bloodType.trim().isEmpty() ||
                 unitStr == null || unitStr.trim().isEmpty() ||
                 donationDateStr == null || donationDateStr.trim().isEmpty()) {
@@ -92,7 +87,7 @@ public class DonateBloodServlet extends HttpServlet {
             return;
         }
 
-        // 4. Validate units range
+        //  Validate units range
         int unitsDonated;
         try {
             unitsDonated = Integer.parseInt(unitStr);
@@ -109,14 +104,13 @@ public class DonateBloodServlet extends HttpServlet {
             return;
         }
 
-        // 5. Build DonationRecord object
+        //  Build DonationRecord object
         DonationRecord record = new DonationRecord();
         record.setDonorId(userId);
         record.setBloodGroup(bloodType.trim());
         record.setQuantity(unitsDonated);
         record.setDonationDate(LocalDate.parse(donationDateStr));
 
-        // camp_id is optional — 0 means walk-in, DAO inserts NULL
         if (campIdStr != null && !campIdStr.trim().isEmpty() && !campIdStr.equals("0")) {
             try {
                 record.setCampId(Integer.parseInt(campIdStr));
@@ -127,7 +121,7 @@ public class DonateBloodServlet extends HttpServlet {
             record.setCampId(0);
         }
 
-        // 6. Save to database
+        //  Save to database
         boolean success = donationRecordDAO.insertDonation(record);
 
         if (success) {

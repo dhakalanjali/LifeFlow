@@ -240,18 +240,18 @@ public class UserDAO {
         return 0;
     }
 
-    // LOGIN user - Fixed for BCrypt
+    // LOGIN user
     public User loginUser(String email, String password) {
-        // Step 1: Get user by email only (not password in SQL)
+        //  Get user by email only
         String sql = "SELECT * FROM users WHERE email = ? AND is_approved = 'approved'";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                // Step 2: Get stored BCrypt hash from database
+                //  Get stored BCrypt hash from database
                 String storedPassword = rs.getString("password");
-                // Step 3: Use BCrypt to verify password
+                //  Use BCrypt to verify password
                 if (PasswordUtil.checkPassword(password, storedPassword)) {
                     return extractUser(rs);
                 }

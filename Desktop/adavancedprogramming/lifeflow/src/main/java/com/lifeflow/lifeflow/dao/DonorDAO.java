@@ -142,8 +142,7 @@ public class DonorDAO {
         }
     }
 
-    // ✅ NEW — called by AdminServlet after recording a donation
-    // Updates last_donation_date and sets is_eligible = 'no'
+
     public boolean updateAfterDonation(int userId, String donationDate) {
         String sql = "UPDATE donors SET last_donation_date = ?, is_eligible = 'no' WHERE user_id = ?";
         Connection c = DBConnection.getConnection();

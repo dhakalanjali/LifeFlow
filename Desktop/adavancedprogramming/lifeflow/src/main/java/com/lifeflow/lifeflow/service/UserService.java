@@ -37,13 +37,13 @@ public class UserService {
         catch (Exception e) { return false; }
     }
 
-    // ✅ Delete user
+    // Delete user
     public boolean deleteUser(int userId) {
         try { return userDAO.deleteUser(userId); }
         catch (Exception e) { return false; }
     }
 
-    // ✅ Update user
+    // Update user
     public boolean updateUser(int userId, String fullName, String email, String phone, String bloodType, String role) {
         try {
             User u = userDAO.getUserById(userId);

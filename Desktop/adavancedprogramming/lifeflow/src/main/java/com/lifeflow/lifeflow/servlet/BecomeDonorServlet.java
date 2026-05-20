@@ -34,7 +34,7 @@ public class BecomeDonorServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Check session
+        // Check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -44,7 +44,7 @@ public class BecomeDonorServlet extends HttpServlet {
         User loggedInUser = (User) session.getAttribute("user");
         int userId = loggedInUser.getUserId();
 
-        // 2. Prevent duplicate registration
+        // Prevent duplicate registration
         Donor existing = donorDAO.getDonorByUserId(userId);
         if (existing != null) {
             request.setAttribute("error", "You are already registered as a donor.");
@@ -52,9 +52,7 @@ public class BecomeDonorServlet extends HttpServlet {
             return;
         }
 
-        // 3. Create donor row
-        //    last_donation_date = null  (no donation yet)
-        //    is_eligible        = "yes" (default)
+        // Create donor row
         Donor newDonor = new Donor();
         newDonor.setUserId(userId);
         newDonor.setLastDonationDate(null);
